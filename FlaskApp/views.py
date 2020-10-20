@@ -32,6 +32,11 @@ def about():
 def caretakers():
     return render_template('available-caretakers.html')
 
+# Page to bid for a caretaker
+@view.route("/bid")
+def bid():
+    return render_template('bid.html')
+
 
 # Will be inserted into the caretaker table
 @view.route("/register_caretaker", methods=["GET", "POST"])
@@ -43,6 +48,7 @@ def register_caretaker():
         username = form.username.data
         email = form.email.data
         password = form.password.data
+
         ## do something to get if he is a pet owner or care taker
         query = "SELECT * FROM users WHERE username = '{}'".format(username)
         exists_user = db.session.execute(query).fetchone()
@@ -56,7 +62,9 @@ def register_caretaker():
             db.session.execute(query)
             db.session.execute(query2)
             db.session.commit()
-            return "You have successfully signed up as a caretaker!"
+            ##return "You have successfully signed up as a caretaker!"
+            flash("You have successfully signed up as a caretaker!", 'success')
+            return redirect(url_for('home'))
     return render_template("registration-caretaker.html", form=form)
 
 ## Will be inserted into the pet owner table as well
@@ -96,9 +104,9 @@ def login():
         print("password entered:", form.password.data)
     if form.validate_on_submit():
         user = Users.query.filter_by(username=form.username.data).first()
-        correct_password = Users.query()
+        correct_password = form.password.data == user.password
         ##user = "SELECT * FROM users WHERE username = '{}'".format(form.username.data)
-        if user:
+        if user and correct_password:
             # TODO: You may want to verify if password is correct
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
@@ -107,6 +115,8 @@ def login():
             ##return redirect("/privileged-page")
             ##flash("You have successfully logged in!", 'success')
             #return redirect(url_for('view.home'))
+        else:
+            flash('Wrong username or password!')
     return render_template("login.html", form=form)
 
 @view.route("/logout", methods=["GET", "POST"])
