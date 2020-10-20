@@ -39,8 +39,8 @@ def bid():
 
 
 # Will be inserted into the caretaker table
-@view.route("/register_caretaker", methods=["GET", "POST"])
-def register_caretaker():
+@view.route("/registration", methods=["GET", "POST"])
+def registration():
     if current_user.is_authenticated:
         return redirect(url_for('view.home'))
     form = RegistrationForm()
@@ -48,26 +48,45 @@ def register_caretaker():
         username = form.username.data
         email = form.email.data
         password = form.password.data
-
+        area = form.area.data
+        select1 = form.select1.data ## Indicate what he want to sign up as
+        select2 = form.select2.data ## Indicate what he want to be ig he sign up as a care taker.
         ## do something to get if he is a pet owner or care taker
         query = "SELECT * FROM users WHERE username = '{}'".format(username)
         exists_user = db.session.execute(query).fetchone()
         if exists_user:
             form.username.errors.append("{} is already in use.".format(username))
         else:
-            query = "INSERT INTO users(username, email, password) VALUES ('{}', '{}', '{}')"\
-                .format(username, email, password)
-            query2 = "INSERT INTO CareTakers(username) VALUES ('{}')"\
-                .format(username)
+            query = "INSERT INTO users(username, email, area, password) VALUES ('{}', '{}', '{}', '{}')"\
+                .format(username, email, area, password)
             db.session.execute(query)
-            db.session.execute(query2)
+            query1 = "INSERT INTO PetOwners(username) VALUES ('{}')".format(username)
+            query2 = "INSERT INTO CareTakers(username) VALUES ('{}')".format(username)
+            if (select1 == '1'):
+                db.session.execute(query1)
+            elif (select1 == '2'):
+                db.session.execute(query2)
+            else:
+                db.session.execute(query1)
+                db.session.execute(query2)
+            if (select1 != '1'):
+                query3 = "INSERT INTO PartTime(username) VALUES ('{}')".format(username)
+                query4 = "INSERT INTO FullTime(username) VALUES ('{}')".format(username)
+                if (select2 == '1'):
+                    db.session.execute(query3)
+                elif (select2 == '2'):
+                    db.session.execute(query4)
+
+            ##db.session.execute(query)
+            ##db.session.execute(query2)
             db.session.commit()
             ##return "You have successfully signed up as a caretaker!"
-            flash("You have successfully signed up as a caretaker!", 'success')
-            return redirect(url_for('home'))
-    return render_template("registration-caretaker.html", form=form)
+            flash("You have successfully signed up!", 'success')
+            return redirect(url_for('view.home'))
+    return render_template("registration.html", form=form)
 
 ## Will be inserted into the pet owner table as well
+## IGNORE THIS ROUTE NOW
 @view.route("/register_petowner", methods=["GET", "POST"])
 def register_petowner():
     if current_user.is_authenticated:
