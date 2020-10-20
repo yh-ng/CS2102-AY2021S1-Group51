@@ -78,6 +78,9 @@ CREATE TABLE Bids (
     -- other attributes that might need: price (of bid),
 );
 
+-- should the pricelist username just reference to the caretakers rather than part time and full time seperately?
+-- we could just check if he is a part time or full time. If full time, we will give option to choose price and then isnert into this TABLE
+-- if full time, we will just insert the default price (from somewhere) based on the pettype.
 CREATE TABLE PriceList (
     pettype VARCHAR REFERENCES Category(pettype),
     username VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
