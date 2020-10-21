@@ -37,7 +37,7 @@ CREATE TABLE Category (
 
 CREATE TABLE OwnedPets (
     owner_name VARCHAR references PetOwners(username) ON DELETE CASCADE,
-    pet_name VARCHAR NOT NULL UNIQUE,
+    petname VARCHAR NOT NULL UNIQUE,
     category VARCHAR NOT NULL,
     age INTEGER NOT NULL,
     --gender VARCHAR NOT NULL,
