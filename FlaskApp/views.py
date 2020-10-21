@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, render_template, flash, url_for, request
 from flask_login import current_user, login_required, login_user, UserMixin, logout_user
 
 from __init__ import db, login_manager
-from forms import LoginForm, RegistrationForm
+from forms import LoginForm, RegistrationForm, PetRegistrationForm
 from models import Users
 
 view = Blueprint("view", __name__)
@@ -12,12 +12,6 @@ view = Blueprint("view", __name__)
 def load_user(username):
     user = Users.query.filter_by(username=username).first()
     return user or current_user
-
-
-#@view.route("/", methods=["GET"])
-#def render_dummy_page():
-#    return "<h1>CS2102</h1>\
-#    <h2>Flask App started successfully!</h2>"
 
 @view.route("/")
 @view.route("/home")
@@ -85,34 +79,6 @@ def registration():
             return redirect(url_for('view.home'))
     return render_template("registration.html", form=form)
 
-## Will be inserted into the pet owner table as well
-## IGNORE THIS ROUTE NOW
-@view.route("/register_petowner", methods=["GET", "POST"])
-def register_petowner():
-    if current_user.is_authenticated:
-        return redirect(url_for('view.home'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        username = form.username.data
-        email = form.email.data
-        password = form.password.data
-        ## do something to get if he is a pet owner or care taker
-        query = "SELECT * FROM users WHERE username = '{}'".format(username)
-        exists_user = db.session.execute(query).fetchone()
-        if exists_user:
-            form.username.errors.append("{} is already in use.".format(username))
-        else:
-            query = "INSERT INTO users(username, email, password) VALUES ('{}', '{}', '{}')"\
-                .format(username, email, password)
-            query2 = "INSERT INTO PetOwners(username) VALUES ('{}')"\
-                .format(username)
-            db.session.execute(query)
-            db.session.execute(query2)
-            db.session.commit()
-            flash("You have successfully signed up as a petowner!", 'success')
-            return redirect(url_for('home'))
-    return render_template("registration_petowner.html", form=form)
-
 @view.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -148,6 +114,66 @@ def logout():
 def account():
     return render_template("account.html")
 
+def is_user_a_petowner(current_user):
+    query = "SELECT * FROM PetOwners WHERE username = '{}'".format(current_user.username)
+    exists_user = db.session.execute(query).fetchone()
+    if exists_user is None:
+        return False
+    return True
+
+def is_user_a_caretaker(current_user):
+    query = "SELECT * FROM CareTakers WHERE username = '{}'".format(current_user.username)
+    exists_user = db.session.execute(query).fetchone()
+    if exists_user is None:
+        return False
+    return True
+
+# If false, user is a full Time
+# If true, user is a part time
+def is_user_a_parttime_caretaker(current_user):
+    query = "SELECT * FROM PartTime WHERE username = '{}'".format(current_user.username)
+    exists_user = db.session.execute(query).fetchone()
+    if exists_user is None:
+        return False
+    return True
+
+## Need a way to find out
+@view.route("/registerpet", methods=["GET", "POST"])
+@login_required
+def registerpet():
+    form = PetRegistrationForm()
+
+    #TO CHECK IF HE IS A PET OWNER OR NOT
+    #IF HE IS NOT, WILL BE REDIRECTED TO HOME PAGE
+    if is_user_a_petowner(current_user) == False:
+        flash("You are not a pet owner, sign up as one first!", 'error')
+        return redirect(url_for('view.home'))
+
+    if form.validate_on_submit():
+        owner_name = current_user.username
+
+        pet_name = form.pet_name.data
+        category = form.category.data
+        age = form.age.data
+        special_care = form.special_care.data
+        if special_care == "":
+            query1 = "INSERT INTO OwnedPets(owner_name, pet_name, category, age) VALUES('{}', '{}', '{}', '{}')"\
+                .format(owner_name, pet_name, category, age)
+            db.session.execute(query1)
+            flash("You have successfully register your pet!", 'success')
+        else:
+            ## Query to insert into Special Care table first
+            ##query2 = "INSERT INTO"
+            # Query to insert into OwnedPets Table
+            query3 = "INSERT INTO OwnedPets(owner_name, pet_name, category, age) VALUES('{}', '{}', '{}', '{}')"\
+                .format(owner_name, pet_name, category, age)
+            ## Query to insert into RequireSpecialCare Table
+            db.session.execute(query3)
+        db.session.commit()
+        return redirect(url_for('view.home'))
+    return render_template("register-pet.html", form=form)
+
+def
 ##@view.route("/privileged-page", methods=["GET"])
 ##@login_required
 ##def render_privileged_page():
