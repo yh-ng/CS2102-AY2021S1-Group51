@@ -13,6 +13,29 @@ def load_user(username):
     user = Users.query.filter_by(username=username).first()
     return user or current_user
 
+def is_user_a_petowner(current_user):
+    query = "SELECT * FROM PetOwners WHERE username = '{}'".format(current_user.username)
+    exists_user = db.session.execute(query).fetchone()
+    if exists_user is None:
+        return False
+    return True
+
+def is_user_a_caretaker(current_user):
+    query = "SELECT * FROM CareTakers WHERE username = '{}'".format(current_user.username)
+    exists_user = db.session.execute(query).fetchone()
+    if exists_user is None:
+        return False
+    return True
+
+# If false, user is a full Time
+# If true, user is a part time
+def is_user_a_parttime_caretaker(current_user):
+    query = "SELECT * FROM PartTime WHERE username = '{}'".format(current_user.username)
+    exists_user = db.session.execute(query).fetchone()
+    if exists_user is None:
+        return False
+    return True
+
 @view.route("/")
 @view.route("/home")
 def home():
@@ -114,29 +137,6 @@ def logout():
 def account():
     return render_template("account.html")
 
-def is_user_a_petowner(current_user):
-    query = "SELECT * FROM PetOwners WHERE username = '{}'".format(current_user.username)
-    exists_user = db.session.execute(query).fetchone()
-    if exists_user is None:
-        return False
-    return True
-
-def is_user_a_caretaker(current_user):
-    query = "SELECT * FROM CareTakers WHERE username = '{}'".format(current_user.username)
-    exists_user = db.session.execute(query).fetchone()
-    if exists_user is None:
-        return False
-    return True
-
-# If false, user is a full Time
-# If true, user is a part time
-def is_user_a_parttime_caretaker(current_user):
-    query = "SELECT * FROM PartTime WHERE username = '{}'".format(current_user.username)
-    exists_user = db.session.execute(query).fetchone()
-    if exists_user is None:
-        return False
-    return True
-
 ## Need a way to find out
 @view.route("/registerpet", methods=["GET", "POST"])
 @login_required
@@ -173,7 +173,9 @@ def registerpet():
         return redirect(url_for('view.home'))
     return render_template("register-pet.html", form=form)
 
-def
+
+
+
 ##@view.route("/privileged-page", methods=["GET"])
 ##@login_required
 ##def render_privileged_page():
