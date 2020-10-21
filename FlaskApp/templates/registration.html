@@ -59,18 +59,44 @@
                     {% endif %}
                 </div>
                 <div class="form-group">
-                  <p>Which area do you live in?</p>
-                  <p>{{ form.area }}</p>
+                  {{ form.area.label(class="form-control-label") }}
+                  {% if form.area.errors %}
+                      {{ form.area(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.area.errors %}
+                              <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                  {% else %}
+                      {{ form.area(class="form-control form-control-lg") }}
+                  {% endif %}
                 </div>
                 <div class="form-group">
-                  <p>What do you want to sign up as?</p>
-                  <p>{{ form.select1 }}</p>
+                  {{ form.select1.label(class="form-control-label") }}
+                  {% if form.select1.errors %}
+                      {{ form.select1(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.select1.errors %}
+                              <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                  {% else %}
+                      {{ form.select1(class="form-control form-control-lg") }}
+                  {% endif %}
                 </div>
                 <div class="form-group">
-                  <p>Pleas choose whether you want to be a full time or part time Care Taker if you have chosen to sign up as a Care Taker</p>
-                  <p>{{ form.select2 }}</p>
+                  {{ form.select2.label(class="form-control-label") }}
+                  {% if form.select2.errors %}
+                      {{ form.select2(class="form-control form-control-lg is-invalid") }}
+                      <div class="invalid-feedback">
+                          {% for error in form.select2.errors %}
+                              <span>{{ error }}</span>
+                          {% endfor %}
+                      </div>
+                  {% else %}
+                      {{ form.select2(class="form-control form-control-lg") }}
+                  {% endif %}
                 </div>
-
             </fieldset>
             <div class="form-group">
                 {{ form.submit(class="btn btn-outline-info") }}
