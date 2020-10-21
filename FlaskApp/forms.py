@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
-from wtforms.validators import InputRequired, ValidationError, Length, Email, EqualTo, DataRequired, InputRequired
+from wtforms import StringField, SubmitField, PasswordField, RadioField, DateField, BooleanField, IntegerField, TimeField, SelectField, TextAreaField, FloatField
+from wtforms.validators import InputRequired, ValidationError, Length, Email, EqualTo, DataRequired, Optional
 
 def is_valid_name(form, field):
     if not all(map(lambda char: char.isalpha(), field.data)):
@@ -24,10 +24,9 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), EqualTo('password')])
     area = SelectField('Which area do you stay at?', choices=areachoice)
-    select1 = SelectField('What do you want to be?', choices=choice1)
-    select2 = SelectField('Part time or full time?', choices=choice2)
+    select1 = SelectField('What do you want to sign up as?', choices=choice1)
+    select2 = SelectField('If you have chosen to sign up as a Care Taker, do you want to work part time or full time?', choices=choice2)
     submit = SubmitField('Sign Up')
-
 
 class LoginForm(FlaskForm):
     ##email = StringField('Email',
@@ -36,3 +35,13 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+class PetRegistrationForm(FlaskForm):
+    categories = [('Dog', 'Dog'), ('Cat', 'Cat'), ('Rabbit', 'Rabbit'),
+                ('Hamster', 'Hamster'), ('Fish', 'Fish'), ('Guinea Pig', 'Guinea Pig'),
+                ('Mice', 'Mice'), ('Terrapin', 'Terrapin')]
+    pet_name = StringField('Pet Name', validators=[DataRequired()])
+    category = SelectField('What is the category of your pet?', choices=categories)
+    age = IntegerField('How old is your pet?', validators=[DataRequired()])
+    special_care = TextAreaField('Write down special considerations that your pet needs if there is', validators=[Optional(), Length(max=200)])
+    submit = SubmitField('Register Pet')
