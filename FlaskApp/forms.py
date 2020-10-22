@@ -39,7 +39,7 @@ class LoginForm(FlaskForm):
 class PetRegistrationForm(FlaskForm):
     categories = [('Dog', 'Dog'), ('Cat', 'Cat'), ('Rabbit', 'Rabbit'),
                 ('Hamster', 'Hamster'), ('Fish', 'Fish'), ('Guinea Pig', 'Guinea Pig'),
-                ('Mice', 'Mice'), ('Terrapin', 'Terrapin')]
+                ('Mice', 'Mice'), ('Terrapin', 'Terrapin'), ('Bird', 'Bird')]
     pet_name = StringField('Pet Name', validators=[DataRequired()])
     category = SelectField('What is the category of your pet?', choices=categories)
     age = IntegerField('How old is your pet?', validators=[DataRequired()])
