@@ -13,6 +13,9 @@ def load_user(username):
     user = Users.query.filter_by(username=username).first()
     return user or current_user
 
+##############################
+# Can get away using the below 3 functions for now, but it would be better to find a better method
+# to obtain what is the role of the user to restrict and give access selected pages to him
 def is_user_a_petowner(current_user):
     query = "SELECT * FROM PetOwners WHERE username = '{}'".format(current_user.username)
     exists_user = db.session.execute(query).fetchone()
@@ -150,22 +153,22 @@ def registerpet():
         return redirect(url_for('view.home'))
 
     if form.validate_on_submit():
-        owner_name = current_user.username
+        owner = current_user.username
 
         pet_name = form.pet_name.data
         category = form.category.data
         age = form.age.data
         special_care = form.special_care.data
         if special_care == "":
-            query1 = "INSERT INTO OwnedPets(owner_name, pet_name, category, age) VALUES('{}', '{}', '{}', '{}')"\
-                .format(owner_name, pet_name, category, age)
+            query1 = "INSERT INTO OwnedPets(owner, pet_name, category, age) VALUES('{}', '{}', '{}', '{}')"\
+                .format(owner, pet_name, category, age)
             db.session.execute(query1)
             flash("You have successfully register your pet!", 'success')
         else:
             ## Query to insert into Special Care table first
             ##query2 = "INSERT INTO"
             # Query to insert into OwnedPets Table
-            query3 = "INSERT INTO OwnedPets(owner_name, pet_name, category, age) VALUES('{}', '{}', '{}', '{}')"\
+            query3 = "INSERT INTO OwnedPets(owner, pet_name, category, age) VALUES('{}', '{}', '{}', '{}')"\
                 .format(owner_name, pet_name, category, age)
             ## Query to insert into RequireSpecialCare Table
             db.session.execute(query3)
