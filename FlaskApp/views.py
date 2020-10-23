@@ -1,9 +1,20 @@
 from flask import Blueprint, redirect, render_template, flash, url_for, request
 from flask_login import current_user, login_required, login_user, UserMixin, logout_user
 
+
 from __init__ import db, login_manager
-from forms import LoginForm, RegistrationForm, PetRegistrationForm
+from forms import *
+from tables import *
 from models import Users
+
+import psycopg2
+import psycopg2.extras
+import math
+
+import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
+from sqlalchemy import inspect
 
 view = Blueprint("view", __name__)
 
@@ -69,6 +80,7 @@ def registration():
         email = form.email.data
         password = form.password.data
         area = form.area.data
+        gender = form.gender.data
         select1 = form.select1.data ## Indicate what he want to sign up as
         select2 = form.select2.data ## Indicate what he want to be ig he sign up as a care taker.
         ## do something to get if he is a pet owner or care taker
@@ -77,8 +89,8 @@ def registration():
         if exists_user:
             form.username.errors.append("{} is already in use.".format(username))
         else:
-            query = "INSERT INTO users(username, email, area, password) VALUES ('{}', '{}', '{}', '{}')"\
-                .format(username, email, area, password)
+            query = "INSERT INTO users(username, email, area, gender, password) VALUES ('{}', '{}', '{}', '{}', '{}')"\
+                .format(username, email, area, gender, password)
             db.session.execute(query)
             query1 = "INSERT INTO PetOwners(username) VALUES ('{}')".format(username)
             query2 = "INSERT INTO CareTakers(username) VALUES ('{}')".format(username)
@@ -117,6 +129,8 @@ def login():
         user = Users.query.filter_by(username=form.username.data).first()
         correct_password = form.password.data == user.password
         ##user = "SELECT * FROM users WHERE username = '{}'".format(form.username.data)
+        if user is None:
+            flash('Username does not exist, please register for an account first if you have yet to done so.', 'Danger')
         if user and correct_password:
             # TODO: You may want to verify if password is correct
             login_user(user, remember=form.remember.data)
@@ -127,7 +141,7 @@ def login():
             ##flash("You have successfully logged in!", 'success')
             #return redirect(url_for('view.home'))
         else:
-            flash('Wrong username or password!')
+            flash('Wrong username or password!', 'Danger')
     return render_template("login.html", form=form)
 
 @view.route("/logout", methods=["GET", "POST"])
@@ -145,7 +159,6 @@ def account():
 @login_required
 def registerpet():
     form = PetRegistrationForm()
-
     #TO CHECK IF HE IS A PET OWNER OR NOT
     #IF HE IS NOT, WILL BE REDIRECTED TO HOME PAGE
     if is_user_a_petowner(current_user) == False:
@@ -154,30 +167,75 @@ def registerpet():
 
     if form.validate_on_submit():
         owner = current_user.username
-
         pet_name = form.pet_name.data
+        check_if_pet_exist = "SELECT * FROM OwnedPets WHERE pet_name = '{}' AND owner = '{}'".format(pet_name, owner)
+        exist_pet = db.session.execute(check_if_pet_exist).fetchone()
+        if exist_pet:
+            flash('You already have a pet with the same name!', 'Danger')
+            return redirect(url_for('view.registerpet'))
         category = form.category.data
         age = form.age.data
-        special_care = form.special_care.data
-        if special_care == "":
-            query1 = "INSERT INTO OwnedPets(owner, pet_name, category, age) VALUES('{}', '{}', '{}', '{}')"\
-                .format(owner, pet_name, category, age)
-            db.session.execute(query1)
-            flash("You have successfully register your pet!", 'success')
-        else:
-            ## Query to insert into Special Care table first
-            ##query2 = "INSERT INTO"
-            # Query to insert into OwnedPets Table
-            query3 = "INSERT INTO OwnedPets(owner, pet_name, category, age) VALUES('{}', '{}', '{}', '{}')"\
-                .format(owner_name, pet_name, category, age)
-            ## Query to insert into RequireSpecialCare Table
+        special_care1 = form.special_care1.data
+        special_care2 = form.special_care2.data
+        special_care3 = form.special_care3.data
+        query1 = "INSERT INTO OwnedPets(owner, pet_name, category, age) VALUES('{}', '{}', '{}','{}')"\
+            .format(owner, pet_name, category, age)
+        db.session.execute(query1)
+        if special_care1 != "":
+            special1 = "SELECT care FROM SpecialCare WHERE care = '{}'".format(special_care1)
+            special11 = db.session.execute(special1).fetchone()
+            if not special11:
+                query2 = "INSERT INTO SpecialCare(care) VALUES('{}')"\
+                    .format(special_care1)
+                db.session.execute(query2)
+            query3 = "INSERT INTO RequireSpecialCare(owner, pet_name, care) VALUES('{}', '{}', '{}')"\
+                .format(owner, pet_name, special_care1)
             db.session.execute(query3)
         db.session.commit()
+        if special_care2 != "":
+            special2 = "SELECT care FROM SpecialCare WHERE care = '{}'".format(special_care2)
+            special22 = db.session.execute(special2).fetchone()
+            if not special22:
+                query2 = "INSERT INTO SpecialCare(care) VALUES('{}')"\
+                    .format(special_care2)
+                db.session.execute(query2)
+            query3 = "INSERT INTO RequireSpecialCare(owner, pet_name, care) VALUES('{}', '{}', '{}')"\
+                .format(owner, pet_name, special_care2)
+            db.session.execute(query3)
+        db.session.commit()
+        if special_care3 != "":
+            special3 = "SELECT care FROM SpecialCare WHERE care = '{}'".format(special_care3)
+            special33 = db.session.execute(special3).fetchone()
+            if not special33:
+                query2 = "INSERT INTO SpecialCare(care) VALUES('{}')"\
+                    .format(special_care3)
+                db.session.execute(query2)
+            query3 = "INSERT INTO RequireSpecialCare(owner, pet_name, care) VALUES('{}', '{}', '{}')"\
+                .format(owner, pet_name, special_care3)
+            db.session.execute(query3)
+        db.session.commit()
+        flash("You have successfully register your pet!", 'success')
         return redirect(url_for('view.home'))
     return render_template("register-pet.html", form=form)
 
+## NEED HELP WITH THIS, DK HOW TO DISPLAY A TABLE FROM A QUERY
+@view.route("/petlist", methods=["POST", "GET"])
+@login_required
+def petlist():
+    #petlist = []
+    owner = current_user.username
+    if is_user_a_petowner(current_user) == False:
+        flash("You are not a pet owner, sign up as one first!", 'error')
+        return redirect(url_for('view.home'))
 
+    query = "SELECT pet_name, category, age FROM OwnedPets WHERE owner = '{}'".format(owner)
+    result = db.session.execute(query)
 
+    result = [r for r in result]
+    table = petList(result)
+    table.border = True
+    return render_template("petlist.html", table=table)
+    #return redirect(url_for('view.home'))
 
 ##@view.route("/privileged-page", methods=["GET"])
 ##@login_required

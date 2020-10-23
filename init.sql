@@ -6,6 +6,7 @@ CREATE TABLE users(
     username VARCHAR PRIMARY KEY,
     email VARCHAR NOT NULL,
     area VARCHAR NOT NULL,
+    gender VARCHAR NOT NULL,
     password VARCHAR NOT NULL
 );
 
@@ -26,6 +27,10 @@ CREATE TABLE ModeOfTransport (
     transport VARCHAR PRIMARY KEY
 );
 
+INSERT INTO ModeOfTransport VALUES ('Pet Owner Deliver');
+INSERT INTO ModeOfTransport VALUES ('Care Taker Pick Up');
+INSERT INTO ModeOfTransport VALUES ('Transfer through PCS Building');
+
 CREATE TABLE PreferredTransport (
     username VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
     transport VARCHAR REFERENCES ModeOfTransport(transport),
@@ -40,6 +45,10 @@ CREATE TABLE PartTime (
     username VARCHAR PRIMARY KEY REFERENCES CareTakers(username) ON DELETE CASCADE
 );
 
+INSERT INTO users VALUES ('abc', 'abc@abc.com', 'North', 'Male', 'abc');
+INSERT INTO PetOwners VALUES ('abc');
+INSERT INTO CareTakers VALUES ('abc');
+INSERT INTO FullTime VALUES ('abc');
 -- TO INSERT INTO HERE WHENEVER THERE IS A NEW CATEGORY IN OWNED PETS
 CREATE TABLE Category (
     pettype VARCHAR PRIMARY KEY

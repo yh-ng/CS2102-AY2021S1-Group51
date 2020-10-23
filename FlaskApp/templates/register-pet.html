@@ -45,18 +45,45 @@
                 {% endif %}
             </div>
             <div class="form-group">
-                {{ form.special_care.label(class="form-control-label") }}
-                {% if form.special_care.errors %}
-                    {{ form.special_care(class="form-control form-control-lg is-invalid") }}
+                {{ form.special_care1.label(class="form-control-label") }}
+                {% if form.special_care1.errors %}
+                    {{ form.special_care1(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
-                        {% for error in form.special_care.errors %}
+                        {% for error in form.special_care1.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.special_care(class="form-control form-control-lg") }}
+                    {{ form.special_care1(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
+            <div class="form-group">
+                {{ form.special_care2.label(class="form-control-label") }}
+                {% if form.special_care2.errors %}
+                    {{ form.special_care2(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.special_care2.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.special_care2(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.special_care3.label(class="form-control-label") }}
+                {% if form.special_care3.errors %}
+                    {{ form.special_care3(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.special_care3.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.special_care3(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
         </fieldset>
         <div class="form-group">
             {{ form.submit(class="btn btn-outline-info") }}

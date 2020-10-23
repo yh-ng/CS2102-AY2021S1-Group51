@@ -8,7 +8,6 @@ app = Flask(__name__)
 # Routing
 app.register_blueprint(view)
 
-
 # Config
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://{username}:{password}@{host}:{port}/{database}"\
     .format(
