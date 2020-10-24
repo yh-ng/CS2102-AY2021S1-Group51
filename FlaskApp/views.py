@@ -1,9 +1,12 @@
 from flask import Blueprint, redirect, render_template, flash, url_for, request
-from flask_login import current_user, login_required, login_user, UserMixin, logout_userfrom __init__ import db, login_manager
+from flask_login import current_user, login_required, login_user, UserMixin, logout_user
+from flask_bootstrap import Bootstrap
+from wtforms.fields import DateField
 
+from __init__ import db, login_manager
 from forms import *
 from tables import *
-from models import Users
+#from models import Users
 
 import psycopg2
 import psycopg2.extras
@@ -15,6 +18,21 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
 from sqlalchemy import inspect
 
 view = Blueprint("view", __name__)
+
+class Users(db.Model):
+    username = db.Column(db.String, primary_key=True)
+    password = db.Column(db.String, nullable=False)
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.username
 
 
 @login_manager.user_loader
@@ -245,52 +263,178 @@ def part_time_set_price():
     if is_user_a_parttime_caretaker(current_user) == False:
         flash("Only part time care takers can set their prices", 'Danger')
         return redirect(url_for('view.home'))
-    deleteCurrentPriceQuery = "DELETE FROM PartTimePriceList WHERE caretaker = '{}'".format(current_user.username)
-    db.session.execute(deleteCurrentPriceQuery)
     form=PartTimeSetPriceForm()
-    Dog = form.Dog.data
-    Cat = form.Cat.data
-    Rabbit = form.Rabbit.data
-    Hamster = form.Hamster.data
-    Fish = form.Fish.data
-    Mice = form.Mice.data
-    Terrapin = form.Terrapin.data
-    Bird = form.Bird.data
-    if Dog:
-        dogquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
-            .format("Dog", current_user.username, Dog)
-        db.session.execute(dogquery)
-    if Cat:
-        catquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
-            .format("Cat", current_user.username, Cat)
-        db.session.execute(catquery)
-    if Rabbit:
-        rabbitquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
-            .format("Rabbit", current_user.username, Rabbit)
-        db.session.execute(rabbitquery)
-    if Hamster:
-        hamsterquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
-            .format("Hamster", current_user.username, Hamster)
-        db.session.execute(hamsterquery)
-    if Fish:
-        fishquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
-            .format("Fish", current_user.username, Fish)
-        db.session.execute(fishquery)
-    if Mice:
-        micequery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
-            .format("Mice", current_user.username, Mice)
-        db.session.execute(micequery)
-    if Terrapin:
-        terrapinquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
-            .format("Terrapin", current_user.username, Terrapin)
-        db.session.execute(terrapinquery)
-    if Bird:
-        birdquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
-            .format("Bird", current_user.username, Bird)
-        db.session.execute(birdquery)
-    db.session.commit()
-    #flash("You have successfully set prices for pet types you want to take care of!", 'success')
+    if form.validate_on_submit():
+        deleteCurrentPriceQuery = "DELETE FROM PartTimePriceList WHERE caretaker = '{}'".format(current_user.username)
+        db.session.execute(deleteCurrentPriceQuery)
+        Dog = form.Dog.data
+        Cat = form.Cat.data
+        Rabbit = form.Rabbit.data
+        Hamster = form.Hamster.data
+        Fish = form.Fish.data
+        Mice = form.Mice.data
+        Terrapin = form.Terrapin.data
+        Bird = form.Bird.data
+        if Dog:
+            dogquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Dog", current_user.username, Dog)
+            db.session.execute(dogquery)
+        if Cat:
+            catquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Cat", current_user.username, Cat)
+            db.session.execute(catquery)
+        if Rabbit:
+            rabbitquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Rabbit", current_user.username, Rabbit)
+            db.session.execute(rabbitquery)
+        if Hamster:
+            hamsterquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Hamster", current_user.username, Hamster)
+            db.session.execute(hamsterquery)
+        if Fish:
+            fishquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Fish", current_user.username, Fish)
+            db.session.execute(fishquery)
+        if Mice:
+            micequery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Mice", current_user.username, Mice)
+            db.session.execute(micequery)
+        if Terrapin:
+            terrapinquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Terrapin", current_user.username, Terrapin)
+            db.session.execute(terrapinquery)
+        if Bird:
+            birdquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Bird", current_user.username, Bird)
+            db.session.execute(birdquery)
+        db.session.commit()
+        flash("You have successfully set prices for pet types you want to take care of!", 'success')
+        return redirect(url_for('view.home'))
     return render_template('part-time-set-price.html', form=form)
+
+@view.route("/full-time-choose-petype", methods=["POST", "GET"])
+@login_required
+def full_time_choose_pet():
+    form = FullTimeChoosePetTypeForm()
+    if is_user_a_parttime_caretaker(current_user) == True:
+        flash("Only part time Full Timers can access this page!", 'Danger')
+        return redirect(url_for('view.home'))
+    if form.validate_on_submit():
+        deleteCurrentPriceQuery = "DELETE FROM FullTimePriceList WHERE caretaker = '{}'".format(current_user.username)
+        db.session.execute(deleteCurrentPriceQuery)
+        Dog = form.Dog.data
+        Cat = form.Cat.data
+        Rabbit = form.Rabbit.data
+        Hamster = form.Hamster.data
+        Fish = form.Fish.data
+        Mice = form.Mice.data
+        Terrapin = form.Terrapin.data
+        Bird = form.Bird.data
+        if Dog == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Dog")).fetchone()[0]
+            dogquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Dog")
+            db.session.execute(dogquery)
+        if Cat == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Cat")).fetchone()[0]
+            catquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Cat")
+            db.session.execute(catquery)
+        if Rabbit == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Rabbit")).fetchone()[0]
+            rabbitquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Rabbit")
+            db.session.execute(rabbitquery)
+        if Hamster == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Hamster")).fetchone()[0]
+            hamsterquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Hamster")
+            db.session.execute(hamsterquery)
+        if Fish == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Fish")).fetchone()[0]
+            fishquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Fish")
+            db.session.execute(fishquery)
+        if Mice == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Mice")).fetchone()[0]
+            micequery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Mice")
+            db.session.execute(micequery)
+        if Terrapin == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Terrapin")).fetchone()[0]
+            terrapinquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Terrapin")
+            db.session.execute(terrapinquery)
+        if Bird == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Bird")).fetchone()[0]
+            birdquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Bird")
+            db.session.execute(birdquery)
+        db.session.commit()
+        flash("You have successfully selected the pet types you want to take care of!", 'success')
+        return redirect(url_for('view.home'))
+    return render_template('full-time-choose-pettype.html', form=form)
+
+# NOT COMPLETED. NEED SOMEONE WRITE THE QUERY AND IMPORT DATA TO TEST OUT
+@view.route("/search-caretaker", methods=["POST", "GET"])
+@login_required
+def search_caretaker():
+    form = SearchCareTakerForm()
+    if is_user_a_petowner(current_user) == False:
+        flash("You are not a pet owner, sign up as one first!", 'error')
+        return redirect(url_for('view.home'))
+    if form.validate_on_submit():
+        return redirect(url_for('view.home'))
+    return render_template('search-caretaker.html', form=form)
+
+@view.route("/testing", methods=["POST","GET"])
+@login_required
+def testing():
+    form = TestForm()
+    if form.validate_on_submit():
+        d = form.dt.data.strftime('%x')
+        query = "INSERT INTO dummy (date) VALUES('{}')".format(d)
+        db.session.execute(query)
+        db.session.commit()
+
+        #return form.dt.data.strftime('%x')
+    return render_template('testing.html', form=form)
+
+
+"""
+Set a route for the care takers to set their availability dates
+"""
+
+"""
+Set a route for care takers to update their availability dates
+"""
+
+"""
+Set a route for the pet owners to bid for a care taker (works hand in hand with searchCaretaker route at line 379)
+"""
+
+
+"""
+Set a route for the care takers to see their transactions
+"""
+
+
+"""
+Set a route for the pet owners to see their transactions
+"""
+
+"""
+Set a route for a user to delete his account
+"""
+
+"""
+Set a route for caretakers to see their salary
+"""
+
+"""
+Set the routes for the admin to see some of the summary pages
+"""
+
 
 ##@view.route("/privileged-page", methods=["GET"])
 ##@login_required
