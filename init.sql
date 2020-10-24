@@ -1,5 +1,5 @@
 --dbname protest
-DROP TABLE IF EXISTS FullTimePriceList, PartTimePriceList, DefaultPriceList, Bids, CareTakerAvailability, RequireSpecialCare, SpecialCare, OwnedPets, Category;
+DROP TABLE IF EXISTS dummy, FullTimePriceList, PartTimePriceList, DefaultPriceList, Bids, CareTakerAvailability, RequireSpecialCare, SpecialCare, OwnedPets, Category;
 DROP TABLE IF EXISTS PreferredTransport, ModeOfTransport, PCSAdmin, PetOwners, PartTime, FullTime, CareTakers, users;
 
 CREATE TABLE users(
@@ -86,7 +86,7 @@ CREATE TABLE RequireSpecialCare(
 );
 
 CREATE TABLE CaretakerAvailability(
-    date TIMESTAMP,
+    date DATE,
     pet_count INTEGER DEFAULT 0,
     leave BOOLEAN,
     caretaker VARCHAR REFERENCES CareTakers(username),
@@ -94,6 +94,7 @@ CREATE TABLE CaretakerAvailability(
     PRIMARY KEY(caretaker, date)
 );
 
+-- is bid_date)time actually necessary? dosent seem liek so
 CREATE TABLE Bids (
     caretaker VARCHAR,
     owner VARCHAR,
@@ -105,8 +106,8 @@ CREATE TABLE Bids (
     bid_date_time TIMESTAMP NOT NULL,
     credit_card VARCHAR,
     completed BOOLEAN DEFAULT FALSE,
-    start_date TIMESTAMP NOT NULL,
-    end_date TIMESTAMP NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     FOREIGN KEY (caretaker, start_date) REFERENCES CareTakerAvailability(caretaker, date),
     FOREIGN KEY (caretaker, end_date) REFERENCES CaretakerAvailability(caretaker, date)
     -- no need start date and end date like what tutor said, so maybe just update the CaretakerAvailability table whenever a bid is made.
@@ -142,6 +143,10 @@ CREATE TABLE FullTimePriceList(
   pettype VARCHAR,
   FOREIGN KEY (pettype, price) REFERENCES DefaultPriceList(pettype, price),
   PRIMARY KEY (pettype, caretaker, price)
+);
+
+CREATE TABLE dummy(
+  date DATE
 );
 /*
 -- should the pricelist username just reference to the caretakers rather than part time and full time seperately?
