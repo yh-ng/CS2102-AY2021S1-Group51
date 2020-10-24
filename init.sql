@@ -45,10 +45,11 @@ CREATE TABLE PartTime (
     username VARCHAR PRIMARY KEY REFERENCES CareTakers(username) ON DELETE CASCADE
 );
 
-INSERT INTO users VALUES ('abc', 'abc@abc.com', 'North', 'Male', 'abc');
-INSERT INTO PetOwners VALUES ('abc');
-INSERT INTO CareTakers VALUES ('abc');
-INSERT INTO FullTime VALUES ('abc');
+--INSERT INTO users VALUES ('abc', 'abc@abc.com', 'North', 'Male', 'abc');
+--INSERT INTO PetOwners VALUES ('abc');
+--INSERT INTO CareTakers VALUES ('abc');
+--INSERT INTO FullTime VALUES ('abc');
+
 -- TO INSERT INTO HERE WHENEVER THERE IS A NEW CATEGORY IN OWNED PETS
 CREATE TABLE Category (
     pettype VARCHAR PRIMARY KEY
@@ -59,7 +60,6 @@ INSERT INTO Category VALUES ('Cat');
 INSERT INTO Category VALUES ('Rabbit');
 INSERT INTO Category VALUES ('Hamster');
 INSERT INTO Category VALUES ('Fish');
-INSERT INTO Category VALUES ('Guinea Pig');
 INSERT INTO Category VALUES ('Mice');
 INSERT INTO Category VALUES ('Terrapin');
 INSERT INTO Category VALUES ('Bird');
@@ -116,7 +116,7 @@ CREATE TABLE Bids (
 CREATE TABLE PartTimePriceList (
   pettype VARCHAR REFERENCES Category(pettype),
   caretaker VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
-  price NUMERIC NOT NULL,
+  price NUMERIC,
   PRIMARY KEY (pettype, caretaker, price)
 );
 
@@ -131,7 +131,6 @@ INSERT INTO DefaultPriceList VALUES ('Cat', 80);
 INSERT INTO DefaultPriceList VALUES ('Rabbit', 110);
 INSERT INTO DefaultPriceList VALUES ('Hamster', 70);
 INSERT INTO DefaultPriceList VALUES ('Fish', 50);
-INSERT INTO DefaultPriceList VALUES ('Guinea Pig', 150);
 INSERT INTO DefaultPriceList VALUES ('Mice', 50);
 INSERT INTO DefaultPriceList VALUES ('Terrapin', 80);
 INSERT INTO DefaultPriceList VALUES ('Bird', 80);
