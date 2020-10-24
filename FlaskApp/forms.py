@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, RadioField, DateField, BooleanField, IntegerField, TimeField, SelectField, TextAreaField, FloatField, FieldList, FormField
+from wtforms import StringField, SubmitField, PasswordField, RadioField, DateField, BooleanField, IntegerField, TimeField, SelectField, TextAreaField, FloatField, FieldList, FormField, SelectMultipleField
 from wtforms.validators import InputRequired, ValidationError, Length, Email, EqualTo, DataRequired, Optional
 
 def is_valid_name(form, field):
@@ -43,7 +43,7 @@ class SpecialCareForm(FlaskForm):
 
 class PetRegistrationForm(FlaskForm):
     categories = [('Dog', 'Dog'), ('Cat', 'Cat'), ('Rabbit', 'Rabbit'),
-                ('Hamster', 'Hamster'), ('Fish', 'Fish'), ('Guinea Pig', 'Guinea Pig'),
+                ('Hamster', 'Hamster'), ('Fish', 'Fish'),
                 ('Mice', 'Mice'), ('Terrapin', 'Terrapin'), ('Bird', 'Bird')]
     pet_name = StringField('Pet Name', validators=[DataRequired()])
     category = SelectField('What is the category of your pet?', choices=categories)
@@ -53,3 +53,19 @@ class PetRegistrationForm(FlaskForm):
     special_care3 = StringField('Write down special considerations that your pet if there is any, else leave this blank', validators=[Optional()])
     #special_care = FieldList(FormField(SpecialCareForm), min_entries=5, validators=[Optional()])
     submit = SubmitField('Register Pet')
+
+
+class PartTimeSetPriceForm(FlaskForm):
+    categories = [('Dog', 'Dog'), ('Cat', 'Cat'), ('Rabbit', 'Rabbit'),
+                ('Hamster', 'Hamster'), ('Fish', 'Fish'), ('Guinea Pig', 'Guinea Pig'),
+                ('Mice', 'Mice'), ('Terrapin', 'Terrapin'), ('Bird', 'Bird')]
+    pet_type_choice = SelectMultipleField('Choose the type of pets you want to take care of', choices=categories)
+    Dog = IntegerField('Dog', validators=[Optional()])
+    Cat = IntegerField('Cat', validators=[Optional()])
+    Rabbit = IntegerField('Rabbit', validators=[Optional()])
+    Hamster = IntegerField('Hamster', validators=[Optional()])
+    Fish = IntegerField('Fish', validators=[Optional()])
+    Mice = IntegerField('Mice', validators=[Optional()])
+    Terrapin = IntegerField('Terrapin', validators=[Optional()])
+    Bird = IntegerField('Bird', validators=[Optional()])
+    submit = SubmitField('Set Prices')
