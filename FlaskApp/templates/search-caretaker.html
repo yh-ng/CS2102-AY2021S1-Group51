@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    $( ".dtpick" ).datepicker();
+  });
+  </script>
+</head>
+
+<body>
+
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Search for a care taker here!</legend>
+            <p>Note: You do not need to type in anything for the type of pets you do not want to take care.</p>
+            <div class="form-group">
+                {{ form.employment_type.label(class="form-control-label") }}
+                {% if form.employment_type.errors %}
+                    {{ form.employment_type(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.employment_type.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.employment_type(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.category.label(class="form-control-label") }}
+                {% if form.category.errors %}
+                    {{ form.category(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                            <span>{{ error }}</span>
+                            {% for error in form.category.errors %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.category(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.rating.label(class="form-control-label") }}
+                {% if form.rating.errors %}
+                    {{ form.rating(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.rating.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.rating(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+            <div class="formField">
+              {{ form.hidden_tag() }}
+                {{ form.startDate.label(class="form-control-label") }}
+                <p>Type in YYYY-MM--DD format, eg. 2020-10-10</p>
+                {% if form.startDate.errors %}
+                    {{ form.startDate(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.startDate.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.startDate(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+            <br>
+            <br>
+
+            <div class="form-group">
+              {{ form.hidden_tag() }}
+                {{ form.endDate.label(class="form-control-label") }}
+                <p>Type in YYYY-MM--DD format, eg. 2020-10-10</p>
+                {% if form.endDate.errors %}
+                    {{ form.endDate(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.endDate.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.endDate(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+    </form>
+</div>
+</body>
+</doctype>
+{% endblock content %}
