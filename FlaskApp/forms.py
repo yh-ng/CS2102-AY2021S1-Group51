@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, RadioField, DateField, BooleanField, IntegerField, TimeField, SelectField, TextAreaField, FloatField, FieldList, FormField, SelectMultipleField
 from wtforms.validators import InputRequired, ValidationError, Length, Email, EqualTo, DataRequired, Optional
+from flask_bootstrap import Bootstrap
 
 def is_valid_name(form, field):
     if not all(map(lambda char: char.isalpha(), field.data)):
@@ -59,7 +60,7 @@ class PartTimeSetPriceForm(FlaskForm):
     categories = [('Dog', 'Dog'), ('Cat', 'Cat'), ('Rabbit', 'Rabbit'),
                 ('Hamster', 'Hamster'), ('Fish', 'Fish'), ('Guinea Pig', 'Guinea Pig'),
                 ('Mice', 'Mice'), ('Terrapin', 'Terrapin'), ('Bird', 'Bird')]
-    pet_type_choice = SelectMultipleField('Choose the type of pets you want to take care of', choices=categories)
+    #pet_type_choice = SelectMultipleField('Choose the type of pets you want to take care of', choices=categories)
     Dog = IntegerField('Dog', validators=[Optional()])
     Cat = IntegerField('Cat', validators=[Optional()])
     Rabbit = IntegerField('Rabbit', validators=[Optional()])
@@ -69,3 +70,32 @@ class PartTimeSetPriceForm(FlaskForm):
     Terrapin = IntegerField('Terrapin', validators=[Optional()])
     Bird = IntegerField('Bird', validators=[Optional()])
     submit = SubmitField('Set Prices')
+
+class FullTimeChoosePetTypeForm(FlaskForm):
+    choice = [('Yes','Yes'),('No','No')]
+    Dog = SelectField('Dog',choices=choice)
+    Cat = SelectField('Cat',choices=choice)
+    Rabbit = SelectField('Rabbit',choices=choice)
+    Hamster = SelectField('Hamster',choices=choice)
+    Fish = SelectField('Fish',choices=choice)
+    Mice = SelectField('Mice',choices=choice)
+    Terrapin = SelectField('Terrapin',choices=choice)
+    Bird = SelectField('Bird',choices=choice)
+    submit = SubmitField('Choose pet types!')
+
+class TestForm(FlaskForm):
+    date = DateField('Pick a Date', format="%m/%d/%Y")
+    submit = SubmitField('Choose pet types!')
+
+class SearchCareTakerForm(FlaskForm):
+    employment = [('1', 'Part Time'), ('2', 'Full Time')]
+    ratings = [('0', '0'), ('1', '1'), ('2','2'),('3','3'),('4','4'),('5','5')]
+    categories = [('Dog', 'Dog'), ('Cat', 'Cat'), ('Rabbit', 'Rabbit'),
+                ('Hamster', 'Hamster'), ('Fish', 'Fish'), ('Guinea Pig', 'Guinea Pig'),
+                ('Mice', 'Mice'), ('Terrapin', 'Terrapin'), ('Bird', 'Bird')]
+    employment_type = SelectField('Employment', choices=employment)
+    category = SelectField('Pet Type', choices=categories)
+    rating = SelectField('Rating', choices=ratings)
+    startDate = DateField('Start date',validators=[InputRequired()],format='%Y-%m-%d')
+    endDate = DateField('End date',validators=[InputRequired()],format='%Y-%m-%d')
+    submit = SubmitField('Search Caretaker')
