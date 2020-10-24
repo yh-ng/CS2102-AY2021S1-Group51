@@ -1,7 +1,6 @@
 from flask import Blueprint, redirect, render_template, flash, url_for, request
 from flask_login import current_user, login_required, login_user, UserMixin, logout_user
 
-
 from __init__ import db, login_manager
 from forms import *
 from tables import *
@@ -72,8 +71,6 @@ def bid():
 # Will be inserted into the caretaker table
 @view.route("/registration", methods=["GET", "POST"])
 def registration():
-    if current_user.is_authenticated:
-        return redirect(url_for('view.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -119,8 +116,6 @@ def registration():
 
 @view.route("/login", methods=["GET", "POST"])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('view.home'))
     form = LoginForm()
     if form.is_submitted():
         print("username entered:", form.username.data)
@@ -227,15 +222,76 @@ def petlist():
     if is_user_a_petowner(current_user) == False:
         flash("You are not a pet owner, sign up as one first!", 'error')
         return redirect(url_for('view.home'))
-
-    query = "SELECT pet_name, category, age FROM OwnedPets WHERE owner = '{}'".format(owner)
-    result = db.session.execute(query)
-
-    result = [r for r in result]
-    table = petList(result)
+    query1 = "SELECT pet_name, category, age FROM OwnedPets WHERE owner = '{}' ORDER BY pet_name, category, age".format(owner)
+    petlist = db.session.execute(query1)
+    petlist = list(petlist)
+    table = petList(petlist)
     table.border = True
     return render_template("petlist.html", table=table)
-    #return redirect(url_for('view.home'))
+
+"""Still have errors"""
+@view.route("/deletepet", methods=["POST", "GET"])
+@login_required
+def deletepet(petname):
+    query = "DELETE FROM OwnedPets WHERE pet_name = '{}'".format(petname)
+    db.session.execute(query)
+    db.session.commit()
+    return redirect(url_for('view.petlist'))
+
+# For now, I made it such that he will put prices for the pets he want to take care of
+# To make our life easier, everytime user wanna update, he need to redo this form.
+@view.route("/part-time-set-price", methods=["POST", "GET"])
+@login_required
+def part_time_set_price():
+    if is_user_a_parttime_caretaker(current_user) == False:
+        flash("Only part time care takers can set their prices", 'Danger')
+        return redirect(url_for('view.home'))
+    deleteCurrentPriceQuery = "DELETE FROM PartTimePriceList WHERE caretaker = '{}'".format(current_user.username)
+    db.session.execute(deleteCurrentPriceQuery)
+    form=PartTimeSetPriceForm()
+    Dog = form.Dog.data
+    Cat = form.Cat.data
+    Rabbit = form.Rabbit.data
+    Hamster = form.Hamster.data
+    Fish = form.Fish.data
+    Mice = form.Mice.data
+    Terrapin = form.Terrapin.data
+    Bird = form.Bird.data
+    if Dog:
+        dogquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            .format("Dog", current_user.username, Dog)
+        db.session.execute(dogquery)
+    if Cat:
+        catquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            .format("Cat", current_user.username, Cat)
+        db.session.execute(catquery)
+    if Rabbit:
+        rabbitquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            .format("Rabbit", current_user.username, Rabbit)
+        db.session.execute(rabbitquery)
+    if Hamster:
+        hamsterquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            .format("Hamster", current_user.username, Hamster)
+        db.session.execute(hamsterquery)
+    if Fish:
+        fishquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            .format("Fish", current_user.username, Fish)
+        db.session.execute(fishquery)
+    if Mice:
+        micequery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            .format("Mice", current_user.username, Mice)
+        db.session.execute(micequery)
+    if Terrapin:
+        terrapinquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            .format("Terrapin", current_user.username, Terrapin)
+        db.session.execute(terrapinquery)
+    if Bird:
+        birdquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            .format("Bird", current_user.username, Bird)
+        db.session.execute(birdquery)
+    db.session.commit()
+    #flash("You have successfully set prices for pet types you want to take care of!", 'success')
+    return render_template('part-time-set-price.html', form=form)
 
 ##@view.route("/privileged-page", methods=["GET"])
 ##@login_required
