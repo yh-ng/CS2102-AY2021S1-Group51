@@ -18,15 +18,17 @@
   <div class="card" style="width: 18rem;">
   <img src="static/images/petimage4.jpg" class="card-img-top">
   <div class="card-body">
-    <h5 class="card-title">Register your pets that you have here!</h5>
+    <h5 class="card-title">For Pet Owners!</h5>
+    <p>Register your pets that you have here!</p>
     <a href="{{ url_for('view.registerpet') }}" class="btn btn-primary">Register your pet!</a>
   </div>
   </div>
   <div class="card" style="width: 18rem;">
   <img src="static/images/caretakerimage1.jpg" class="card-img-top">
   <div class="card-body">
-    <h5 class="card-title">Search for a Care Taker for your pet now!</h5>
-    <a href="http://www.google.com" class="btn btn-primary">Search for Care Taker!</a>
+    <h5 class="card-title">For Pet Owners!</h5>
+    <p>Search for a Care Taker for your pet now!</p>
+    <a href="{{ url_for('view.search_caretaker')}}" class="btn btn-primary">Search for a Care Taker here!</a>
   </div>
   </div>
   </div>
@@ -35,7 +37,7 @@
   <div class="card" style="width: 18rem;">
   <img src="static/images/petimage4.jpg" class="card-img-top">
   <div class="card-body">
-    <h5 class="card-title">For part time care takers</h5>
+    <h5 class="card-title">For Part Time Care Takers</h5>
     <p>Set your prices here!</p>
     <a href="{{ url_for('view.part_time_set_price')}}" class="btn btn-primary">Click here!</a>
   </div>
@@ -43,8 +45,9 @@
   <div class="card" style="width: 18rem;">
   <img src="static/images/caretakerimage1.jpg" class="card-img-top">
   <div class="card-body">
-    <h5 class="card-title">View your past orders here!</h5>
-    <a href="http://www.google.com" class="btn btn-primary">Click here!</a>
+    <h5 class="card-title">For Full Time Care Takers</h5>
+    <p>Choose the pet types you want to take care of here!</p>
+    <a href="{{ url_for('view.full_time_choose_pet')}}" class="btn btn-primary">Click here!</a>
   </div>
   </div>
   </div>
@@ -80,5 +83,4 @@
   </div>
   </div>
   </div>
-
 {% endblock content %}
