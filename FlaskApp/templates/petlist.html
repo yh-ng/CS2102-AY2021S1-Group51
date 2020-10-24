@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
-<doctype html="">
-<title>Your registered pets!<title1>
-<body>
-  {{ table }}
+  <p>Hi there {{ current_user.username }}</p>
+  <p>Below are your registered Pets!</p>
+{{ table }}
 </body>
-</doctype>
-{% endblock content %}
+{% endblock %}
