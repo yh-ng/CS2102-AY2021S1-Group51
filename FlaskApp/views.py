@@ -247,10 +247,12 @@ def petlist():
     return render_template("petlist.html", table=table)
 
 """Still have errors"""
+#Update, 25/10: can now delete pets after clicking on 'delete' button
 @view.route("/deletepet", methods=["POST", "GET"])
 @login_required
-def deletepet(petname):
-    query = "DELETE FROM OwnedPets WHERE pet_name = '{}'".format(petname)
+def deletepet():
+    pet_name = request.args.get('pet_name')
+    query = "DELETE FROM OwnedPets WHERE pet_name = '{}'".format(pet_name)
     db.session.execute(query)
     db.session.commit()
     return redirect(url_for('view.petlist'))

@@ -81,7 +81,7 @@ CREATE TABLE RequireSpecialCare(
     owner VARCHAR,
     pet_name VARCHAR,
     care VARCHAR REFERENCES SpecialCare(care),
-    FOREIGN KEY(owner, pet_name) REFERENCES OwnedPets(owner, pet_name),
+    FOREIGN KEY(owner, pet_name) REFERENCES OwnedPets(owner, pet_name) ON DELETE CASCADE,
     PRIMARY KEY(owner, pet_name, care)
 );
 
