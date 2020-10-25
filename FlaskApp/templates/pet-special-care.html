@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+  <p>Hi there {{ current_user.username }}</p>
+  <p>Below is the special care of the pet</p>
+{{ table }}
+</body>
+<div class="border-top pt-3">
+    <small class="text-muted">
+        Click here to go back to your pet list <a class="ml-2" href="{{ url_for('view.petlist') }}">Click Here</a>
+    </small>
+</div>
+{% endblock %}

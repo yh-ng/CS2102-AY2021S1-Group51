@@ -230,7 +230,9 @@ def registerpet():
         return redirect(url_for('view.home'))
     return render_template("register-pet.html", form=form)
 
-## NEED HELP WITH THIS, DK HOW TO DISPLAY A TABLE FROM A QUERY
+"""
+Not sure how to display the special care as well
+"""
 @view.route("/petlist", methods=["POST", "GET"])
 @login_required
 def petlist():
@@ -246,8 +248,24 @@ def petlist():
     table.border = True
     return render_template("petlist.html", table=table)
 
-"""Still have errors"""
-#Update, 25/10: can now delete pets after clicking on 'delete' button
+@view.route("/pet-special-care", methods=["POST","GET"])
+@login_required
+def view_special_care():
+    owner = current_user.username
+    if is_user_a_petowner(current_user) == False:
+        flash("You are not a pet owner, sign up as one first!", 'error')
+        return redirect(url_for('view.home'))
+    pet_name = request.args.get('pet_name')
+    query1 = "SELECT care FROM RequireSpecialCare WHERE owner = '{}' AND pet_name = '{}'".format(owner, pet_name)
+    carelist = db.session.execute(query1)
+    carelist = list(carelist)
+    table = specialCarePet(carelist)
+    table.border = True
+    return render_template("pet-special-care.html", table=table)
+
+"""
+If possible, see if can add smt like "Are you sure you want to delete" before deleting.
+"""
 @view.route("/deletepet", methods=["POST", "GET"])
 @login_required
 def deletepet():
@@ -257,6 +275,11 @@ def deletepet():
     db.session.commit()
     return redirect(url_for('view.petlist'))
 
+"""
+Create a route to edit pet details
+@view.route("/editpet", methods=["POST", "GET"])
+def editpet():
+"""
 # For now, I made it such that he will put prices for the pets he want to take care of
 # To make our life easier, everytime user wanna update, he need to redo this form.
 @view.route("/part-time-set-price", methods=["POST", "GET"])
