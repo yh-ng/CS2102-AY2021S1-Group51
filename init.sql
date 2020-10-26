@@ -37,6 +37,21 @@ CREATE TABLE PreferredTransport (
     PRIMARY KEY (username, transport)
 );
 
+CREATE TABLE ModeOfPayment (
+  modeOfPayment VARCHAR PRIMARY KEY
+);
+
+INSERT INTO ModeOfPayment VALUES ('Credit Card');
+INSERT INTO ModeOfPayment VALUES ('Cash');
+INSERT INTO ModeOfPayment VALUES ('Either');
+
+
+CREATE TABLE PreferredModeOfPayment (
+  username VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
+  modeOfPayment VARCHAR REFERENCES ModeOfPayment(modeOfPayment),
+  PRIMARY KEY (username, modeOfPayment)
+);
+
 CREATE TABLE FullTime (
     username VARCHAR PRIMARY KEY REFERENCES CareTakers(username) ON DELETE CASCADE
 );
@@ -89,7 +104,7 @@ CREATE TABLE CaretakerAvailability(
     date DATE,
     pet_count INTEGER DEFAULT 0,
     leave BOOLEAN DEFAULT False,
-    caretaker VARCHAR REFERENCES CareTakers(username),
+    caretaker VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
     available BOOLEAN NOT NULL DEFAULT True,
     PRIMARY KEY(caretaker, date)
 );
@@ -100,10 +115,9 @@ CREATE TABLE Bids (
     owner VARCHAR,
     pet_name VARCHAR,
     FOREIGN KEY(owner, pet_name) REFERENCES OwnedPets(owner, pet_name),
-    review VARCHAR,
-    rating INTEGER, --to be updated after the bid
+    review VARCHAR DEFAULT NULL,
+    rating INTEGER DEFAULT NULL, --to be updated after the bid
     mode_of_transport VARCHAR NOT NULL,
-    bid_date_time TIMESTAMP NOT NULL,
     credit_card VARCHAR,
     completed BOOLEAN DEFAULT FALSE,
     start_date DATE NOT NULL,
@@ -148,25 +162,3 @@ CREATE TABLE FullTimePriceList(
 CREATE TABLE dummy(
   date DATE
 );
-/*
--- should the pricelist username just reference to the caretakers rather than part time and full time seperately?
--- we could just check if he is a part time or full time. If full time, we will give option to choose price and then isnert into this TABLE
--- if full time, we will just insert the default price (from somewhere) based on the pettype.
-CREATE TABLE PriceList (
-    pettype VARCHAR REFERENCES Category(pettype),
-    username VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
-    price NUMERIC NOT NULL,
-    PRIMARY KEY(pettype, username, price)
-);
-*/
---INSERT INTO users (username, email, area, password) VALUES ('a', 'a', 'a', 'a');
---INSERT INTO PetOwners (username, email, area, password) VALUES ('b', 'b', 'a', 'a');
-
---INSERT INTO PetOwners (username) VALUES ('b');
-
---CREATE FUNCTIONS AND PROCEDURES
---PUT DESCRIPTION ABOVE TO FUNCTION ON WHAT IT IS FOR
---WILL NEED TO TRANSPORT THESE STUFF INTO SOME ROUTE IN views.py later on.
-
-
---CREATE TRIGGERS
