@@ -18,6 +18,8 @@ class RegistrationForm(FlaskForm):
     choice1 = [('1', 'Pet Owner'), ('2', 'Care Taker'), ('3', 'Both')]
     choice2 = [('1', 'Part Time'), ('2', 'Full Time'), ('3', 'N.A')]
     areachoice = [('North', 'North'), ('East', 'East'), ('South', 'South'), ('West', 'West'), ('Central', 'Central')]
+    mode_of_transport = [('Pet Owner Deliver', 'Pet Owner Deliver'), ('Care Taker Pick Up', 'Care Taker Pick Up'),
+                        ('Transfer through PCS Building', 'Transfer through PCS Building'), ('N.A', 'N.A')]
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
@@ -29,6 +31,7 @@ class RegistrationForm(FlaskForm):
     area = SelectField('Which area do you stay at?', choices=areachoice)
     select1 = SelectField('What do you want to sign up as?', choices=choice1)
     select2 = SelectField('If you have chosen to sign up as a Care Taker, do you want to work part time or full time?', choices=choice2)
+    mode_of_transport = SelectField('If you have chosen to sign up as a Care Taker, How do you prefer the pet you will take care of to be transported?', choices=mode_of_transport)
     submit = SubmitField('Sign Up')
 
 class LoginForm(FlaskForm):
@@ -93,9 +96,16 @@ class SearchCareTakerForm(FlaskForm):
     categories = [('Dog', 'Dog'), ('Cat', 'Cat'), ('Rabbit', 'Rabbit'),
                 ('Hamster', 'Hamster'), ('Fish', 'Fish'), ('Guinea Pig', 'Guinea Pig'),
                 ('Mice', 'Mice'), ('Terrapin', 'Terrapin'), ('Bird', 'Bird')]
+    mode_of_transport = [('Pet Owner Deliver', 'Pet Owner Deliver'), ('Care Taker Pick Up', 'Care Taker Pick Up'),
+                        ('Transfer through PCS Building', 'Transfer through PCS Building')]
     employment_type = SelectField('Employment', choices=employment)
     category = SelectField('Pet Type', choices=categories)
     rating = SelectField('Rating', choices=ratings)
+    preferred_mode_of_transport = SelectField('Preferred Mode of Transport of Pet', choices=mode_of_transport)
     startDate = DateField('Start date',validators=[InputRequired()],format='%Y-%m-%d')
     endDate = DateField('End date',validators=[InputRequired()],format='%Y-%m-%d')
     submit = SubmitField('Search Caretaker')
+
+class UpdateAvailabilityForm(FlaskForm):
+    leaveDate = DateField('Date to take leave',validators=[InputRequired()],format='%Y-%m-%d')
+    submit = SubmitField('Update Availability!')
