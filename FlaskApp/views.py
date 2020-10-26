@@ -100,6 +100,7 @@ def registration():
         select2 = form.select2.data ## Indicate what he want to be ig he sign up as a care taker.
         ## do something to get if he is a pet owner or care taker
         mode = form.mode_of_transport.data
+        payment = form.mode_of_payment.data
         query = "SELECT * FROM users WHERE username = '{}'".format(username)
         exists_user = db.session.execute(query).fetchone()
         if exists_user:
@@ -126,6 +127,11 @@ def registration():
                     db.session.execute(query4)
                 query5 = "INSERT INTO PreferredTransport(username, transport) VALUES ('{}', '{}')".format(username, mode)
                 db.session.execute(query5)
+
+                if payment == '1':
+                    db.session.execute("INSERT INTO PreferredModeOfPayment(username, modeOfPayment) VALUES ('{}', '{}')".format(username, 'Credit Card'))
+                elif payment == '2':
+                    db.session.execute("INSERT INTO PreferredModeOfPayment(username, modeOfPayment) VALUES ('{}', '{}')".format(username, 'Cash'))
 
                 # If he sign up as a caretaker, he will automatically be available for everyday.
                 # Will need to update this table himself at another page if he dosent want to be available
@@ -422,9 +428,34 @@ def search_caretaker():
     if is_user_a_petowner(current_user) == False:
         flash("You are not a pet owner, sign up as one first!", 'error')
         return redirect(url_for('view.home'))
+
     if form.validate_on_submit():
-        return redirect(url_for('view.home'))
+        employment = form.employment_type.data
+        category = form.category.data
+        rating = form.rating.data
+        transport = form.transport.data
+        payment = form.payment.data
+        startDate = form.startDate.data
+        endDate = form.endDate.data
+        """
+        Write the query to get the filtered names of the caretakers first
+        ** NOTE, JUST NEED THE USERNAME, THEN CAN FILTER USING WHERE Users.username = username
+        query = ....
+        db.session.execute()
+
+        1. execute the query here to get the list of available care takers that is according to what pet owner wants
+        2. then natural join caretaker and users to get username, gender, rating (i think this suffices for now)
+            a. save the above select query ls and do the follow to produce table
+             ls = db.session.execute(query)
+             ls = list(ls)
+             table = FilteredCaretakers(ls)
+             table.border = true
+        """
+        return render_template("filtered-available-caretakers.html", table=table)
     return render_template('search-caretaker.html', form=form)
+
+
+
 
 @view.route("/testing", methods=["POST","GET"])
 @login_required
