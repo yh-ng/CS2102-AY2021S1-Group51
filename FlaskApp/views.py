@@ -11,6 +11,7 @@ from tables import *
 import psycopg2
 import psycopg2.extras
 import math
+from datetime import date, timedelta
 
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -98,6 +99,7 @@ def registration():
         select1 = form.select1.data ## Indicate what he want to sign up as
         select2 = form.select2.data ## Indicate what he want to be ig he sign up as a care taker.
         ## do something to get if he is a pet owner or care taker
+        mode = form.mode_of_transport.data
         query = "SELECT * FROM users WHERE username = '{}'".format(username)
         exists_user = db.session.execute(query).fetchone()
         if exists_user:
@@ -249,7 +251,6 @@ Not sure how to display the special care as well
 @view.route("/petlist", methods=["POST", "GET"])
 @login_required
 def petlist():
-    #petlist = []
     owner = current_user.username
     if is_user_a_petowner(current_user) == False:
         flash("You are not a pet owner, sign up as one first!", 'error')
@@ -441,11 +442,40 @@ def testing():
 
 """
 Set a route for the care takers to set their availability dates
+NOTE: Completed, automated the adding to CareTakerAvailability table such
+that when a caretaker is created, will by default add every date from today to 2020-12-31 (for now, switch to 2021-12-31 in final implementation)
+to the availability table and he will be available
 """
 
 """
-Set a route for care takers to update their availability dates
+Set a route for care takers to update their availability dates, meaning, for them to take leaves
 """
+@view.route("/caretaker-update-availability", methods=["POST", "GET"])
+@login_required
+def caretaker_update_availability():
+    form = UpdateAvailabilityForm()
+    if is_user_a_caretaker(current_user) == False:
+        flash("Only Care Takers can take leave and set their availability dates", 'Danger')
+        return redirect(url_for('view.home'))
+
+    if form.validate_on_submit():
+        leaveDate = form.leaveDate.data
+        query1 = "SELECT pet_count FROM CaretakerAvailability WHERE caretaker = '{}' AND date = '{}'".format(current_user.username, leaveDate)
+        pet_count_on_selected_date = db.session.execute(query1).fetchone()[0]
+        if pet_count_on_selected_date > 0:
+            flash("You cannot take leave on that '{}' because you have pets to take care of on that date".format(leaveDate), 'Danger')
+        else:
+            query2 = "UPDATE CareTakerAvailability SET leave = true, available = false WHERE caretaker = '{}' AND date = '{}'"\
+                .format(current_user.username, leaveDate)
+            db.session.execute(query2)
+            db.session.commit()
+            flash('You have successfully udpdated your availability', 'Success')
+    display_query = "SELECT date, pet_count, leave, available FROM CareTakerAvailability WHERE caretaker = '{}' ORDER BY date".format(current_user.username)
+    display = db.session.execute(display_query)
+    display = list(display)
+    table = CareTakerAvailability(display)
+    table.border = True
+    return render_template("caretaker-update-availability.html" ,form=form, table=table)
 
 """
 Set a route for the pet owners to bid for a care taker (works hand in hand with searchCaretaker route at line 379)
