@@ -1,6 +1,6 @@
 --dbname protest
 DROP TABLE IF EXISTS dummy, FullTimePriceList, PartTimePriceList, DefaultPriceList, Bids, CareTakerAvailability, RequireSpecialCare, SpecialCare, OwnedPets, Category;
-DROP TABLE IF EXISTS PreferredTransport, ModeOfTransport, PCSAdmin, PetOwners, PartTime, FullTime, CareTakers, users;
+DROP TABLE IF EXISTS PreferredModeOfPayment, ModeOfPayment, PreferredTransport, ModeOfTransport, PCSAdmin, PetOwners, PartTime, FullTime, CareTakers, users;
 
 CREATE TABLE users(
     username VARCHAR PRIMARY KEY,
