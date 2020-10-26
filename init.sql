@@ -1,5 +1,5 @@
 --dbname protest
-DROP TABLE IF EXISTS dummy, FullTimePriceList, PartTimePriceList, DefaultPriceList, Bids, CareTakerAvailability, RequireSpecialCare, SpecialCare, OwnedPets, Category;
+DROP TABLE IF EXISTS CareTakerSalary, dummy, FullTimePriceList, PartTimePriceList, DefaultPriceList, Bids, CareTakerAvailability, RequireSpecialCare, SpecialCare, OwnedPets, Category;
 DROP TABLE IF EXISTS PreferredModeOfPayment, ModeOfPayment, PreferredTransport, ModeOfTransport, PCSAdmin, PetOwners, PartTime, FullTime, CareTakers, users;
 
 CREATE TABLE users(
@@ -162,3 +162,24 @@ CREATE TABLE FullTimePriceList(
 CREATE TABLE dummy(
   date DATE
 );
+
+CREATE TABLE CareTakerSalary (
+  year INTEGER,
+  month INTEGER,
+  caretaker VARCHAR REFERENCES CareTakers(username),
+  petdays INTEGER NOT NULL DEFAULT 0,
+  earnings NUMERIC NOT NULL DEFAULT 0,
+  final_salary NUMERIC NOT NULL DEFAULT 0,
+  PRIMARY KEY (year, month, caretaker)
+);
+
+
+--TABLES NEEDED FOR THE SUMMARY OF SALARY OF CARETAKER
+--FOR FULL TIME - FINAL SALARY IS $3000 for any total pet days <= 60
+--              - IF pet days > 60, receive 80% of them as bonus
+--              - so i guess, for example, total earnings he got $5000, and
+--                his total pet days is 75, he will get $3000 + (5000 - 3000) * 80%?
+--FOR PART TIME - FINAL SALARY IN A MONTH IS 75% OF TOTAL EARNINGS. (25% TO PCS)
+--####################################################################
+--YEAR # MONTH # USERNAME # PETDAYS # TOTAL EARNINGS # FINAL SALARY #
+--####################################################################
