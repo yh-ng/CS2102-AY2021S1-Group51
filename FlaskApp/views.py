@@ -6,7 +6,6 @@ from wtforms.fields import DateField
 from __init__ import db, login_manager
 from forms import *
 from tables import *
-#from models import Users
 
 import psycopg2
 import psycopg2.extras
@@ -136,6 +135,12 @@ def registration():
                 # If he sign up as a caretaker, he will automatically be available for everyday.
                 # Will need to update this table himself at another page if he dosent want to be available
                 # in andy day.
+                for i in range(10, 13):
+                    db.session.execute("INSERT INTO CareTakerSalary(year, month, caretaker) VALUES ('{}', '{}', '{}')".format(2020, i, username))
+
+                for i in range(1, 13):
+                    db.session.execute("INSERT INTO CareTakerSalary(year, month, caretaker) VALUES ('{}', '{}', '{}')".format(2021, i, username))
+
                 first_date = date.today()
                 last_date = date(2020, 12, 31) ## Change 2020 to 2021 after testing, else too much data to handle.
                 delta = timedelta(days=1)
@@ -509,7 +514,7 @@ def caretaker_update_availability():
     return render_template("caretaker-update-availability.html" ,form=form, table=table)
 
 """
-Set a route for the pet owners to bid for a care taker (works hand in hand with searchCaretaker route at line 379)
+Set a route for the pet owners to bid for a care taker (works hand in hand with searchCaretaker route at line 429)
 """
 
 
