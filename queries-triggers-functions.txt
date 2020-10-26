@@ -1,0 +1,96 @@
+QUERIES NEEDED *JUST MAKE SURE GOT AT LEAST 3 COMPLEX ONES
+** The more interesting ones are probably the summary tables i guess.
+interesitng ones as per instructions in pdf are queries that includes
+– Subqueries
+– Group by aggregations (possibly with having clause)
+– Common table expressions (but not more than 2)
+– Transactions
+– Stored procedures
+
+(MORE IMPORTANT)
+**REALLY REALLY NEED TO SETTLE 1 AND 2 ASAP!!
+1. Create a query to filter the care takers when petowner searching for a caretaker
+* Look at view.py on how to do this complex thing.
+
+(MORE IMPORTANT)
+2. INSERT INTO BIDS TABLE WHEN A BID IS MADE. (this is follow up from 1.)
+* Make sure the attributes are all correct for this one during insertion as ther is validate_on_submit
+
+(MORE IMPORTANT)
+3. Create a query to produce useful summary tables for caretaker to see - can be anything and be flexible,
+dosent matter what the table shows as long as it is probably useful for the caretaker to see.
+- some ideas of how "random" but interesting it can be
+  - number of pets of different pet types he has taken care of (can extend to within a date range, in a month, etc)
+  - age distribution of the pets he has taken care of.
+  - Average rating for each month so far - can include such an attribute in another table or can just display.
+
+4. Similarly, create summary tables useful for the pet owner to see for himself
+ - some ideas on random but prob interesting ones
+    - besides pet info, also shows how many times that pet has been taken care of
+    - show how much money he has spent on this PCS per month
+
+(MORE IMPORTANT)
+4. Create a page for a pet owner to edit his pet details - like special care all this
+- make sure it has been updated in all the necessary tables and the data that are supposed to be deleted are deleted
+
+(MORE IMPORTANT)
+5. Create a query to display the list of caretakers and their reviews (might not be query but more of a route)
+- way to implement this is probably similar to the petlist route in views.py
+
+6. Set a route for the pet owners to see their transactions.
+(MORE IMPORTANT)
+- Same thing, this is probably just displaying of data, create a query and look at how the petlist route is implemented
+  at views.py to learn how to present it
+
+7. Set a route for a user to delete his account
+- make sure data deleted everywhere
+
+
+8. Set a route for caretakers to see their salary
+- table created, but need caretaker to have a page to see it
+
+(MORE IMPORTANT)
+9. Set the routes for the admin to see some of the summary pages (Will prob have more than 1 summary pages)
+
+
+(MORE IMPORTANT)
+10. Stype the home page nicer. Rearrage the links in home.html and make 3 sections
+section 1 - contains links that only pet owners can access
+section 2 - contains links that only part time care takers can access
+section 3 - contains links that only full time care takers can access
+- the sections can be in the nav bar or like a card, just make sure it is organized nicely
+
+(MORE IMPORTANT)
+11. for the displaying of tables of information (such as the display petlist route)
+ - try to make the design of the table nice cus i believe 1 mark is allocated to this
+ - FROM PROJ REQUIREMENTS -
+  ""(e) User interface 2 marks
+  + i Interface are well thought out and easy to use.
+  - i Data are displayed only using html tables (e.g., <table></table>); all functionalities
+  are connected to home page without""
+
+(MORE IMPORTANT)
+12. Find out how to create a Flask Admin on youtube. If too hard, we just create another RegistrationForm
+    for the user to sign up as an admin
+
+13. Think of some possible summary information for the PCS admin
+
+14. Redraw the ER Diagram (do it after next wed when doing the final report tgt too)
+
+
+15. Enforcing the 2 x 150 days for the full time care taker - no idea how, someone pls suggest
+  - BASICALLY ENSURING HE IS NOT ALLOWED TO TAKE A LEAVE IF HE WANTS TO TAKE A LEAVE THAT VIOLATES THE 2X150 days
+  - COULD BE A TRIGGER NOT ALLOWING HIM TO TAKE LEAVE AND NOT UPDATING AVAILABILITY Table
+
+TRIGGERS THAT CAN BE USED *JUST MAKE SURE GOT AT LEAST 3 COMPLEX ONES
+
+1. Create a trigger to auto update the rating of a caretaker at the caretaker table after the user has
+submitted the rating and review. If can combine, also auto update the total pet days in the salary
+table and total earnings there.
+*Note, price per day for fulltime and parttime are in different tables
+
+2. Automation of deletion of dates in availability table that has already past
+  - not sure if good. in terms of storage, this should be good. BUt make sure the necessary data for sumamry that requires the data here
+  has already been updated in other tables that stores summary information
+
+3. NEED MORE IDEAS
