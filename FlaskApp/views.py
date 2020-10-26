@@ -122,7 +122,20 @@ def registration():
                     db.session.execute(query3)
                 elif (select2 == '2'):
                     db.session.execute(query4)
+                query5 = "INSERT INTO PreferredTransport(username, transport) VALUES ('{}', '{}')".format(username, mode)
+                db.session.execute(query5)
 
+                # If he sign up as a caretaker, he will automatically be available for everyday.
+                # Will need to update this table himself at another page if he dosent want to be available
+                # in andy day.
+                first_date = date.today()
+                last_date = date(2020, 12, 31) ## Change 2020 to 2021 after testing, else too much data to handle.
+                delta = timedelta(days=1)
+                while first_date <= last_date:
+                    current = first_date.strftime("%Y-%m-%d")
+                    query_insert_into_avaialble = "INSERT INTO CaretakerAvailability(date, caretaker) VALUES ('{}','{}')".format(current, username)
+                    first_date += delta
+                    db.session.execute(query_insert_into_avaialble)
             ##db.session.execute(query)
             ##db.session.execute(query2)
             db.session.commit()
