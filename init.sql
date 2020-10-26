@@ -118,6 +118,7 @@ CREATE TABLE Bids (
     review VARCHAR DEFAULT NULL,
     rating INTEGER DEFAULT NULL, --to be updated after the bid
     mode_of_transport VARCHAR NOT NULL,
+    mode_of_payment VARCHAR NOT NULL,
     credit_card VARCHAR,
     completed BOOLEAN DEFAULT FALSE,
     start_date DATE NOT NULL,
@@ -163,6 +164,7 @@ CREATE TABLE dummy(
   date DATE
 );
 
+-- THIS TABLE WILL BE USEFUL TO GET SOME OF THE SUMMARY INFORMATION AT POINT 4 OF THE PROJECT REQUIREMENTS.
 CREATE TABLE CareTakerSalary (
   year INTEGER,
   month INTEGER,
