@@ -23,4 +23,11 @@ class CareTakerAvailability(Table):
 
 class UserList(Table):
     classes = ['table', 'table-bordered', 'table-striped']
-    username = Col('username')
+    username = Col('Username')
+
+class FilteredCaretakers(Table):
+    classes  = ['table', 'table-bordered', 'table-striped']
+    username = Col('Caretaker Name')
+    gender = Col('Gender')
+    rating = Col('Rating')
+    
