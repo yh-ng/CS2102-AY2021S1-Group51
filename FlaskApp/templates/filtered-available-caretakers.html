@@ -1,0 +1,6 @@
+{% extends "layout.html" %}
+{% block content %}
+  <p>Hi there {{ current_user.username }}</p>
+  <p>Below are the filtered caretakers according to your preference!</p>
+{{ table }}
+{% endblock %}
