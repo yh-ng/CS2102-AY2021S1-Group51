@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Update your available dates here!</legend>
+                <p>Type in YYYY-MM-DD format. E.g, for 21 November 2020, key in 2020-11-21</p>
+                <div class="form-group">
+                    {{ form.leaveDate.label(class="form-control-label") }}
+
+                    {% if form.leaveDate.errors %}
+                        {{ form.leaveDate(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.leaveDate.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.leaveDate(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+
+            <br>
+            <br>
+            <br>
+            <p>Below are your registered Pets!</p>
+            {{ table }}
+
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+{% endblock content %}
