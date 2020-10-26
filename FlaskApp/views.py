@@ -1,15 +1,17 @@
 from flask import Blueprint, redirect, render_template, flash, url_for, request
 from flask_login import current_user, login_required, login_user, UserMixin, logout_user
-## HI
-## testing
+from flask_bootstrap import Bootstrap
+from wtforms.fields import DateField
+
 from __init__ import db, login_manager
 from forms import *
 from tables import *
-from models import Users
+#from models import Users
 
 import psycopg2
 import psycopg2.extras
 import math
+from datetime import date, timedelta
 
 import sqlalchemy
 from sqlalchemy import create_engine
@@ -17,6 +19,21 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
 from sqlalchemy import inspect
 
 view = Blueprint("view", __name__)
+
+class Users(db.Model):
+    username = db.Column(db.String, primary_key=True)
+    password = db.Column(db.String, nullable=False)
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.username
 
 
 @login_manager.user_loader
@@ -72,8 +89,6 @@ def bid():
 # Will be inserted into the caretaker table
 @view.route("/registration", methods=["GET", "POST"])
 def registration():
-    if current_user.is_authenticated:
-        return redirect(url_for('view.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -84,6 +99,7 @@ def registration():
         select1 = form.select1.data ## Indicate what he want to sign up as
         select2 = form.select2.data ## Indicate what he want to be ig he sign up as a care taker.
         ## do something to get if he is a pet owner or care taker
+        mode = form.mode_of_transport.data
         query = "SELECT * FROM users WHERE username = '{}'".format(username)
         exists_user = db.session.execute(query).fetchone()
         if exists_user:
@@ -108,7 +124,20 @@ def registration():
                     db.session.execute(query3)
                 elif (select2 == '2'):
                     db.session.execute(query4)
+                query5 = "INSERT INTO PreferredTransport(username, transport) VALUES ('{}', '{}')".format(username, mode)
+                db.session.execute(query5)
 
+                # If he sign up as a caretaker, he will automatically be available for everyday.
+                # Will need to update this table himself at another page if he dosent want to be available
+                # in andy day.
+                first_date = date.today()
+                last_date = date(2020, 12, 31) ## Change 2020 to 2021 after testing, else too much data to handle.
+                delta = timedelta(days=1)
+                while first_date <= last_date:
+                    current = first_date.strftime("%Y-%m-%d")
+                    query_insert_into_avaialble = "INSERT INTO CaretakerAvailability(date, caretaker) VALUES ('{}','{}')".format(current, username)
+                    first_date += delta
+                    db.session.execute(query_insert_into_avaialble)
             ##db.session.execute(query)
             ##db.session.execute(query2)
             db.session.commit()
@@ -119,8 +148,6 @@ def registration():
 
 @view.route("/login", methods=["GET", "POST"])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('view.home'))
     form = LoginForm()
     if form.is_submitted():
         print("username entered:", form.username.data)
@@ -218,24 +245,264 @@ def registerpet():
         return redirect(url_for('view.home'))
     return render_template("register-pet.html", form=form)
 
-## NEED HELP WITH THIS, DK HOW TO DISPLAY A TABLE FROM A QUERY
+"""
+Not sure how to display the special care as well
+"""
 @view.route("/petlist", methods=["POST", "GET"])
 @login_required
 def petlist():
-    #petlist = []
     owner = current_user.username
     if is_user_a_petowner(current_user) == False:
         flash("You are not a pet owner, sign up as one first!", 'error')
         return redirect(url_for('view.home'))
-
-    query = "SELECT pet_name, category, age FROM OwnedPets WHERE owner = '{}'".format(owner)
-    result = db.session.execute(query)
-
-    result = [r for r in result]
-    table = petList(result)
+    query1 = "SELECT pet_name, category, age FROM OwnedPets WHERE owner = '{}' ORDER BY pet_name, category, age".format(owner)
+    petlist = db.session.execute(query1)
+    petlist = list(petlist)
+    table = petList(petlist)
     table.border = True
     return render_template("petlist.html", table=table)
-    #return redirect(url_for('view.home'))
+
+@view.route("/pet-special-care", methods=["POST","GET"])
+@login_required
+def view_special_care():
+    owner = current_user.username
+    if is_user_a_petowner(current_user) == False:
+        flash("You are not a pet owner, sign up as one first!", 'error')
+        return redirect(url_for('view.home'))
+    pet_name = request.args.get('pet_name')
+    query1 = "SELECT care FROM RequireSpecialCare WHERE owner = '{}' AND pet_name = '{}'".format(owner, pet_name)
+    carelist = db.session.execute(query1)
+    carelist = list(carelist)
+    table = specialCarePet(carelist)
+    table.border = True
+    return render_template("pet-special-care.html", table=table)
+
+"""
+If possible, see if can add smt like "Are you sure you want to delete" before deleting.
+"""
+@view.route("/deletepet", methods=["POST", "GET"])
+@login_required
+def deletepet():
+    pet_name = request.args.get('pet_name')
+    query = "DELETE FROM OwnedPets WHERE pet_name = '{}'".format(pet_name)
+    db.session.execute(query)
+    db.session.commit()
+    return redirect(url_for('view.petlist'))
+
+"""
+Create a route to edit pet details
+@view.route("/editpet", methods=["POST", "GET"])
+def editpet():
+"""
+# For now, I made it such that he will put prices for the pets he want to take care of
+# To make our life easier, everytime user wanna update, he need to redo this form.
+@view.route("/part-time-set-price", methods=["POST", "GET"])
+@login_required
+def part_time_set_price():
+    if is_user_a_parttime_caretaker(current_user) == False:
+        flash("Only part time care takers can set their prices", 'Danger')
+        return redirect(url_for('view.home'))
+    form=PartTimeSetPriceForm()
+    if form.validate_on_submit():
+        deleteCurrentPriceQuery = "DELETE FROM PartTimePriceList WHERE caretaker = '{}'".format(current_user.username)
+        db.session.execute(deleteCurrentPriceQuery)
+        Dog = form.Dog.data
+        Cat = form.Cat.data
+        Rabbit = form.Rabbit.data
+        Hamster = form.Hamster.data
+        Fish = form.Fish.data
+        Mice = form.Mice.data
+        Terrapin = form.Terrapin.data
+        Bird = form.Bird.data
+        if Dog:
+            dogquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Dog", current_user.username, Dog)
+            db.session.execute(dogquery)
+        if Cat:
+            catquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Cat", current_user.username, Cat)
+            db.session.execute(catquery)
+        if Rabbit:
+            rabbitquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Rabbit", current_user.username, Rabbit)
+            db.session.execute(rabbitquery)
+        if Hamster:
+            hamsterquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Hamster", current_user.username, Hamster)
+            db.session.execute(hamsterquery)
+        if Fish:
+            fishquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Fish", current_user.username, Fish)
+            db.session.execute(fishquery)
+        if Mice:
+            micequery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Mice", current_user.username, Mice)
+            db.session.execute(micequery)
+        if Terrapin:
+            terrapinquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Terrapin", current_user.username, Terrapin)
+            db.session.execute(terrapinquery)
+        if Bird:
+            birdquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+                .format("Bird", current_user.username, Bird)
+            db.session.execute(birdquery)
+        db.session.commit()
+        flash("You have successfully set prices for pet types you want to take care of!", 'success')
+        return redirect(url_for('view.home'))
+    return render_template('part-time-set-price.html', form=form)
+
+@view.route("/full-time-choose-petype", methods=["POST", "GET"])
+@login_required
+def full_time_choose_pet():
+    form = FullTimeChoosePetTypeForm()
+    if is_user_a_parttime_caretaker(current_user) == True:
+        flash("Only part time Full Timers can access this page!", 'Danger')
+        return redirect(url_for('view.home'))
+    if form.validate_on_submit():
+        deleteCurrentPriceQuery = "DELETE FROM FullTimePriceList WHERE caretaker = '{}'".format(current_user.username)
+        db.session.execute(deleteCurrentPriceQuery)
+        Dog = form.Dog.data
+        Cat = form.Cat.data
+        Rabbit = form.Rabbit.data
+        Hamster = form.Hamster.data
+        Fish = form.Fish.data
+        Mice = form.Mice.data
+        Terrapin = form.Terrapin.data
+        Bird = form.Bird.data
+        if Dog == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Dog")).fetchone()[0]
+            dogquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Dog")
+            db.session.execute(dogquery)
+        if Cat == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Cat")).fetchone()[0]
+            catquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Cat")
+            db.session.execute(catquery)
+        if Rabbit == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Rabbit")).fetchone()[0]
+            rabbitquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Rabbit")
+            db.session.execute(rabbitquery)
+        if Hamster == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Hamster")).fetchone()[0]
+            hamsterquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Hamster")
+            db.session.execute(hamsterquery)
+        if Fish == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Fish")).fetchone()[0]
+            fishquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Fish")
+            db.session.execute(fishquery)
+        if Mice == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Mice")).fetchone()[0]
+            micequery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Mice")
+            db.session.execute(micequery)
+        if Terrapin == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Terrapin")).fetchone()[0]
+            terrapinquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Terrapin")
+            db.session.execute(terrapinquery)
+        if Bird == "Yes":
+            price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Bird")).fetchone()[0]
+            birdquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+                .format(current_user.username, price, "Bird")
+            db.session.execute(birdquery)
+        db.session.commit()
+        flash("You have successfully selected the pet types you want to take care of!", 'success')
+        return redirect(url_for('view.home'))
+    return render_template('full-time-choose-pettype.html', form=form)
+
+# NOT COMPLETED. NEED SOMEONE WRITE THE QUERY AND IMPORT DATA TO TEST OUT
+@view.route("/search-caretaker", methods=["POST", "GET"])
+@login_required
+def search_caretaker():
+    form = SearchCareTakerForm()
+    if is_user_a_petowner(current_user) == False:
+        flash("You are not a pet owner, sign up as one first!", 'error')
+        return redirect(url_for('view.home'))
+    if form.validate_on_submit():
+        return redirect(url_for('view.home'))
+    return render_template('search-caretaker.html', form=form)
+
+@view.route("/testing", methods=["POST","GET"])
+@login_required
+def testing():
+    form = TestForm()
+    if form.validate_on_submit():
+        d = form.dt.data.strftime('%x')
+        query = "INSERT INTO dummy (date) VALUES('{}')".format(d)
+        db.session.execute(query)
+        db.session.commit()
+
+        #return form.dt.data.strftime('%x')
+    return render_template('testing.html', form=form)
+
+
+"""
+Set a route for the care takers to set their availability dates
+NOTE: Completed, automated the adding to CareTakerAvailability table such
+that when a caretaker is created, will by default add every date from today to 2020-12-31 (for now, switch to 2021-12-31 in final implementation)
+to the availability table and he will be available
+"""
+
+"""
+Set a route for care takers to update their availability dates, meaning, for them to take leaves
+"""
+@view.route("/caretaker-update-availability", methods=["POST", "GET"])
+@login_required
+def caretaker_update_availability():
+    form = UpdateAvailabilityForm()
+    if is_user_a_caretaker(current_user) == False:
+        flash("Only Care Takers can take leave and set their availability dates", 'Danger')
+        return redirect(url_for('view.home'))
+
+    if form.validate_on_submit():
+        leaveDate = form.leaveDate.data
+        query1 = "SELECT pet_count FROM CaretakerAvailability WHERE caretaker = '{}' AND date = '{}'".format(current_user.username, leaveDate)
+        pet_count_on_selected_date = db.session.execute(query1).fetchone()[0]
+        if pet_count_on_selected_date > 0:
+            flash("You cannot take leave on that '{}' because you have pets to take care of on that date".format(leaveDate), 'Danger')
+        else:
+            query2 = "UPDATE CareTakerAvailability SET leave = true, available = false WHERE caretaker = '{}' AND date = '{}'"\
+                .format(current_user.username, leaveDate)
+            db.session.execute(query2)
+            db.session.commit()
+            flash('You have successfully udpdated your availability', 'Success')
+    display_query = "SELECT date, pet_count, leave, available FROM CareTakerAvailability WHERE caretaker = '{}' ORDER BY date".format(current_user.username)
+    display = db.session.execute(display_query)
+    display = list(display)
+    table = CareTakerAvailability(display)
+    table.border = True
+    return render_template("caretaker-update-availability.html" ,form=form, table=table)
+
+"""
+Set a route for the pet owners to bid for a care taker (works hand in hand with searchCaretaker route at line 379)
+"""
+
+
+"""
+Set a route for the care takers to see their transactions
+"""
+
+
+"""
+Set a route for the pet owners to see their transactions
+"""
+
+"""
+Set a route for a user to delete his account
+"""
+
+"""
+Set a route for caretakers to see their salary
+"""
+
+"""
+Set the routes for the admin to see some of the summary pages
+"""
+
 
 ##@view.route("/privileged-page", methods=["GET"])
 ##@login_required

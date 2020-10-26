@@ -1,5 +1,5 @@
 --dbname protest
-DROP TABLE IF EXISTS FullTimePriceList, PartTimePriceList, DefaultPriceList, Bids, CareTakerAvailability, RequireSpecialCare, SpecialCare, OwnedPets, Category;
+DROP TABLE IF EXISTS dummy, FullTimePriceList, PartTimePriceList, DefaultPriceList, Bids, CareTakerAvailability, RequireSpecialCare, SpecialCare, OwnedPets, Category;
 DROP TABLE IF EXISTS PreferredTransport, ModeOfTransport, PCSAdmin, PetOwners, PartTime, FullTime, CareTakers, users;
 
 CREATE TABLE users(
@@ -45,10 +45,11 @@ CREATE TABLE PartTime (
     username VARCHAR PRIMARY KEY REFERENCES CareTakers(username) ON DELETE CASCADE
 );
 
-INSERT INTO users VALUES ('abc', 'abc@abc.com', 'North', 'Male', 'abc');
-INSERT INTO PetOwners VALUES ('abc');
-INSERT INTO CareTakers VALUES ('abc');
-INSERT INTO FullTime VALUES ('abc');
+--INSERT INTO users VALUES ('abc', 'abc@abc.com', 'North', 'Male', 'abc');
+--INSERT INTO PetOwners VALUES ('abc');
+--INSERT INTO CareTakers VALUES ('abc');
+--INSERT INTO FullTime VALUES ('abc');
+
 -- TO INSERT INTO HERE WHENEVER THERE IS A NEW CATEGORY IN OWNED PETS
 CREATE TABLE Category (
     pettype VARCHAR PRIMARY KEY
@@ -59,7 +60,6 @@ INSERT INTO Category VALUES ('Cat');
 INSERT INTO Category VALUES ('Rabbit');
 INSERT INTO Category VALUES ('Hamster');
 INSERT INTO Category VALUES ('Fish');
-INSERT INTO Category VALUES ('Guinea Pig');
 INSERT INTO Category VALUES ('Mice');
 INSERT INTO Category VALUES ('Terrapin');
 INSERT INTO Category VALUES ('Bird');
@@ -81,19 +81,20 @@ CREATE TABLE RequireSpecialCare(
     owner VARCHAR,
     pet_name VARCHAR,
     care VARCHAR REFERENCES SpecialCare(care),
-    FOREIGN KEY(owner, pet_name) REFERENCES OwnedPets(owner, pet_name),
+    FOREIGN KEY(owner, pet_name) REFERENCES OwnedPets(owner, pet_name) ON DELETE CASCADE,
     PRIMARY KEY(owner, pet_name, care)
 );
 
 CREATE TABLE CaretakerAvailability(
-    date TIMESTAMP,
+    date DATE,
     pet_count INTEGER DEFAULT 0,
-    leave BOOLEAN,
+    leave BOOLEAN DEFAULT False,
     caretaker VARCHAR REFERENCES CareTakers(username),
-    available BOOLEAN NOT NULL DEFAULT true,
+    available BOOLEAN NOT NULL DEFAULT True,
     PRIMARY KEY(caretaker, date)
 );
 
+-- is bid_date)time actually necessary? dosent seem liek so
 CREATE TABLE Bids (
     caretaker VARCHAR,
     owner VARCHAR,
@@ -105,8 +106,8 @@ CREATE TABLE Bids (
     bid_date_time TIMESTAMP NOT NULL,
     credit_card VARCHAR,
     completed BOOLEAN DEFAULT FALSE,
-    start_date TIMESTAMP NOT NULL,
-    end_date TIMESTAMP NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     FOREIGN KEY (caretaker, start_date) REFERENCES CareTakerAvailability(caretaker, date),
     FOREIGN KEY (caretaker, end_date) REFERENCES CaretakerAvailability(caretaker, date)
     -- no need start date and end date like what tutor said, so maybe just update the CaretakerAvailability table whenever a bid is made.
@@ -116,7 +117,7 @@ CREATE TABLE Bids (
 CREATE TABLE PartTimePriceList (
   pettype VARCHAR REFERENCES Category(pettype),
   caretaker VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
-  price NUMERIC NOT NULL,
+  price NUMERIC,
   PRIMARY KEY (pettype, caretaker, price)
 );
 
@@ -131,7 +132,6 @@ INSERT INTO DefaultPriceList VALUES ('Cat', 80);
 INSERT INTO DefaultPriceList VALUES ('Rabbit', 110);
 INSERT INTO DefaultPriceList VALUES ('Hamster', 70);
 INSERT INTO DefaultPriceList VALUES ('Fish', 50);
-INSERT INTO DefaultPriceList VALUES ('Guinea Pig', 150);
 INSERT INTO DefaultPriceList VALUES ('Mice', 50);
 INSERT INTO DefaultPriceList VALUES ('Terrapin', 80);
 INSERT INTO DefaultPriceList VALUES ('Bird', 80);
@@ -143,6 +143,10 @@ CREATE TABLE FullTimePriceList(
   pettype VARCHAR,
   FOREIGN KEY (pettype, price) REFERENCES DefaultPriceList(pettype, price),
   PRIMARY KEY (pettype, caretaker, price)
+);
+
+CREATE TABLE dummy(
+  date DATE
 );
 /*
 -- should the pricelist username just reference to the caretakers rather than part time and full time seperately?
