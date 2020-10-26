@@ -88,9 +88,9 @@ CREATE TABLE RequireSpecialCare(
 CREATE TABLE CaretakerAvailability(
     date DATE,
     pet_count INTEGER DEFAULT 0,
-    leave BOOLEAN,
+    leave BOOLEAN DEFAULT False,
     caretaker VARCHAR REFERENCES CareTakers(username),
-    available BOOLEAN NOT NULL DEFAULT true,
+    available BOOLEAN NOT NULL DEFAULT True,
     PRIMARY KEY(caretaker, date)
 );
 
