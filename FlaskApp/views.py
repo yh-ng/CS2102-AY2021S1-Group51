@@ -425,6 +425,28 @@ def full_time_choose_pet():
         return redirect(url_for('view.home'))
     return render_template('full-time-choose-pettype.html', form=form)
 
+
+"""
+Workflow for bidding
+1. search for a CareTaker
+2. bring user to a page showing a table of available caretakers (order by rating)
+    a. The page should have a link beside each caretaker to bid and bring the user to a bid page
+3. At the bid page, the user will select the pet he wants the care taker to take care of
+    a. Make sure pet types match
+    b. Make sure that the pet is available to be taken care of during those days. (how to make sure this)
+    c. Insert a row into the Bid table
+    d. Update the pet count for the respecitive dates in the availability table
+4. End of Bidding!
+
+Take care finish. - Workflow
+1. Care taker can click on "completed care taking" (to be implemented) on a page which shows his list of transactions
+2. Update the bid to be a completed bid (means the whole taking care process has ended)
+3. According to the current rating of user (before rating changes), update the salary table
+    a. Add number of pet days
+    b. Add earnings to the total earnings of the user
+    c. Update the rating of the user after
+4. End!
+"""
 # NOT COMPLETED. NEED SOMEONE WRITE THE QUERY AND IMPORT DATA TO TEST OUT
 @view.route("/search-caretaker", methods=["POST", "GET"])
 @login_required
