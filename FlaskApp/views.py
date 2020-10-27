@@ -136,17 +136,17 @@ def registration():
                 # Will need to update this table himself at another page if he dosent want to be available
                 # in andy day.
                 for i in range(10, 13):
-                    db.session.execute("INSERT INTO CareTakerSalary(year, month, caretaker) VALUES ('{}', '{}', '{}')".format(2020, i, username))
+                    db.session.execute("INSERT INTO CareTakerSalary(year, month, username) VALUES ('{}', '{}', '{}')".format(2020, i, username))
 
                 for i in range(1, 13):
-                    db.session.execute("INSERT INTO CareTakerSalary(year, month, caretaker) VALUES ('{}', '{}', '{}')".format(2021, i, username))
+                    db.session.execute("INSERT INTO CareTakerSalary(year, month, username) VALUES ('{}', '{}', '{}')".format(2021, i, username))
 
                 first_date = date.today()
                 last_date = date(2020, 12, 31) ## Change 2020 to 2021 after testing, else too much data to handle.
                 delta = timedelta(days=1)
                 while first_date <= last_date:
                     current = first_date.strftime("%Y-%m-%d")
-                    query_insert_into_avaialble = "INSERT INTO CaretakerAvailability(date, caretaker) VALUES ('{}','{}')".format(current, username)
+                    query_insert_into_avaialble = "INSERT INTO CaretakerAvailability(date, username) VALUES ('{}','{}')".format(current, username)
                     first_date += delta
                     db.session.execute(query_insert_into_avaialble)
             ##db.session.execute(query)
@@ -307,6 +307,8 @@ def editpet():
 """
 # For now, I made it such that he will put prices for the pets he want to take care of
 # To make our life easier, everytime user wanna update, he need to redo this form.
+
+# There is a small issue where pet owners can access this page, tried to fix it but failed, PO still can access
 @view.route("/part-time-set-price", methods=["POST", "GET"])
 @login_required
 def part_time_set_price():
@@ -315,7 +317,7 @@ def part_time_set_price():
         return redirect(url_for('view.home'))
     form=PartTimeSetPriceForm()
     if form.validate_on_submit():
-        deleteCurrentPriceQuery = "DELETE FROM PartTimePriceList WHERE caretaker = '{}'".format(current_user.username)
+        deleteCurrentPriceQuery = "DELETE FROM PartTimePriceList WHERE username = '{}'".format(current_user.username)
         db.session.execute(deleteCurrentPriceQuery)
         Dog = form.Dog.data
         Cat = form.Cat.data
@@ -326,35 +328,35 @@ def part_time_set_price():
         Terrapin = form.Terrapin.data
         Bird = form.Bird.data
         if Dog:
-            dogquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            dogquery = "INSERT INTO PartTimePriceList (pettype, username, price)  VALUES('{}', '{}', '{}')"\
                 .format("Dog", current_user.username, Dog)
             db.session.execute(dogquery)
         if Cat:
-            catquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            catquery = "INSERT INTO PartTimePriceList (pettype, username, price)  VALUES('{}', '{}', '{}')"\
                 .format("Cat", current_user.username, Cat)
             db.session.execute(catquery)
         if Rabbit:
-            rabbitquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            rabbitquery = "INSERT INTO PartTimePriceList (pettype, username, price)  VALUES('{}', '{}', '{}')"\
                 .format("Rabbit", current_user.username, Rabbit)
             db.session.execute(rabbitquery)
         if Hamster:
-            hamsterquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            hamsterquery = "INSERT INTO PartTimePriceList (pettype, username, price)  VALUES('{}', '{}', '{}')"\
                 .format("Hamster", current_user.username, Hamster)
             db.session.execute(hamsterquery)
         if Fish:
-            fishquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            fishquery = "INSERT INTO PartTimePriceList (pettype, username, price)  VALUES('{}', '{}', '{}')"\
                 .format("Fish", current_user.username, Fish)
             db.session.execute(fishquery)
         if Mice:
-            micequery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            micequery = "INSERT INTO PartTimePriceList (pettype, username, price)  VALUES('{}', '{}', '{}')"\
                 .format("Mice", current_user.username, Mice)
             db.session.execute(micequery)
         if Terrapin:
-            terrapinquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            terrapinquery = "INSERT INTO PartTimePriceList (pettype, username, price)  VALUES('{}', '{}', '{}')"\
                 .format("Terrapin", current_user.username, Terrapin)
             db.session.execute(terrapinquery)
         if Bird:
-            birdquery = "INSERT INTO PartTimePriceList (pettype, caretaker, price)  VALUES('{}', '{}', '{}')"\
+            birdquery = "INSERT INTO PartTimePriceList (pettype, username, price)  VALUES('{}', '{}', '{}')"\
                 .format("Bird", current_user.username, Bird)
             db.session.execute(birdquery)
         db.session.commit()
@@ -370,7 +372,7 @@ def full_time_choose_pet():
         flash("Only part time Full Timers can access this page!", 'Danger')
         return redirect(url_for('view.home'))
     if form.validate_on_submit():
-        deleteCurrentPriceQuery = "DELETE FROM FullTimePriceList WHERE caretaker = '{}'".format(current_user.username)
+        deleteCurrentPriceQuery = "DELETE FROM FullTimePriceList WHERE username = '{}'".format(current_user.username)
         db.session.execute(deleteCurrentPriceQuery)
         Dog = form.Dog.data
         Cat = form.Cat.data
@@ -382,42 +384,42 @@ def full_time_choose_pet():
         Bird = form.Bird.data
         if Dog == "Yes":
             price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Dog")).fetchone()[0]
-            dogquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+            dogquery = "INSERT INTO FullTimePriceList (username, price, pettype)  VALUES('{}', '{}', '{}')"\
                 .format(current_user.username, price, "Dog")
             db.session.execute(dogquery)
         if Cat == "Yes":
             price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Cat")).fetchone()[0]
-            catquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+            catquery = "INSERT INTO FullTimePriceList (username, price, pettype)  VALUES('{}', '{}', '{}')"\
                 .format(current_user.username, price, "Cat")
             db.session.execute(catquery)
         if Rabbit == "Yes":
             price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Rabbit")).fetchone()[0]
-            rabbitquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+            rabbitquery = "INSERT INTO FullTimePriceList (username, price, pettype)  VALUES('{}', '{}', '{}')"\
                 .format(current_user.username, price, "Rabbit")
             db.session.execute(rabbitquery)
         if Hamster == "Yes":
             price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Hamster")).fetchone()[0]
-            hamsterquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+            hamsterquery = "INSERT INTO FullTimePriceList (username, price, pettype)  VALUES('{}', '{}', '{}')"\
                 .format(current_user.username, price, "Hamster")
             db.session.execute(hamsterquery)
         if Fish == "Yes":
             price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Fish")).fetchone()[0]
-            fishquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+            fishquery = "INSERT INTO FullTimePriceList (username, price, pettype)  VALUES('{}', '{}', '{}')"\
                 .format(current_user.username, price, "Fish")
             db.session.execute(fishquery)
         if Mice == "Yes":
             price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Mice")).fetchone()[0]
-            micequery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+            micequery = "INSERT INTO FullTimePriceList (username, price, pettype)  VALUES('{}', '{}', '{}')"\
                 .format(current_user.username, price, "Mice")
             db.session.execute(micequery)
         if Terrapin == "Yes":
             price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Terrapin")).fetchone()[0]
-            terrapinquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+            terrapinquery = "INSERT INTO FullTimePriceList (username, price, pettype)  VALUES('{}', '{}', '{}')"\
                 .format(current_user.username, price, "Terrapin")
             db.session.execute(terrapinquery)
         if Bird == "Yes":
             price = db.session.execute("SELECT price FROM DefaultPriceList WHERE pettype = '{}'".format("Bird")).fetchone()[0]
-            birdquery = "INSERT INTO FullTimePriceList (caretaker, price, pettype)  VALUES('{}', '{}', '{}')"\
+            birdquery = "INSERT INTO FullTimePriceList (username, price, pettype)  VALUES('{}', '{}', '{}')"\
                 .format(current_user.username, price, "Bird")
             db.session.execute(birdquery)
         db.session.commit()
@@ -464,6 +466,28 @@ def search_caretaker():
         payment = form.payment.data
         startDate = form.startDate.data
         endDate = form.endDate.data
+
+        #the search query is very long and I'm not sure how to wrap it around in atom
+        #able to filter by employment, category, rating, transport and payment now
+        #not sure how to implement filtering for date into current query yet, need more time
+        if employment == "1": #part time
+            searchquery = "SELECT DISTINCT username, gender, rating FROM users NATURAL JOIN PartTimePriceList NATURAL JOIN CareTakers NATURAL JOIN PreferredTransport NATURAL JOIN PreferredModeOfPayment NATURAL JOIN CareTakerAvailability WHERE pettype = '{}' AND rating = '{}' AND transport = '{}' AND modeofpayment = '{}'".format(category, rating, transport, payment)
+            filtered = db.session.execute(searchquery)
+            filtered = list(filtered)
+            table = FilteredCaretakers(filtered)
+            table.border = True
+        elif employment == "2":#full time
+            searchquery = "SELECT DISTINCT username, gender, rating FROM users NATURAL JOIN FullTimePriceList NATURAL JOIN CareTakers NATURAL JOIN PreferredTransport NATURAL JOIN PreferredModeOfPayment NATURAL JOIN CareTakerAvailability WHERE pettype = '{}' AND rating = '{}' AND transport = '{}' AND modeofpayment = '{}'".format(category, rating, transport, payment)
+            filtered = db.session.execute(searchquery)
+            filtered = list(filtered)
+            table = FilteredCaretakers(filtered)
+            table.border = True
+        #elif employment == "Part Time":
+        #    filtered = db.session.execute("SELECT username, gender, area AS rating FROM Users")
+        #    filtered = list(filtered)
+        #    table = FilteredCaretakers(filtered)
+        #    table.border = True
+
         """
         Write the query to get the filtered names of the caretakers first
         ** NOTE, JUST NEED THE USERNAME, THEN CAN FILTER USING WHERE Users.username = username
@@ -518,17 +542,17 @@ def caretaker_update_availability():
 
     if form.validate_on_submit():
         leaveDate = form.leaveDate.data
-        query1 = "SELECT pet_count FROM CaretakerAvailability WHERE caretaker = '{}' AND date = '{}'".format(current_user.username, leaveDate)
+        query1 = "SELECT pet_count FROM CaretakerAvailability WHERE username = '{}' AND date = '{}'".format(current_user.username, leaveDate)
         pet_count_on_selected_date = db.session.execute(query1).fetchone()[0]
         if pet_count_on_selected_date > 0:
             flash("You cannot take leave on that '{}' because you have pets to take care of on that date".format(leaveDate), 'Danger')
         else:
-            query2 = "UPDATE CareTakerAvailability SET leave = true, available = false WHERE caretaker = '{}' AND date = '{}'"\
+            query2 = "UPDATE CareTakerAvailability SET leave = true, available = false WHERE username = '{}' AND date = '{}'"\
                 .format(current_user.username, leaveDate)
             db.session.execute(query2)
             db.session.commit()
             flash('You have successfully udpdated your availability', 'Success')
-    display_query = "SELECT date, pet_count, leave, available FROM CareTakerAvailability WHERE caretaker = '{}' ORDER BY date".format(current_user.username)
+    display_query = "SELECT date, pet_count, leave, available FROM CareTakerAvailability WHERE username = '{}' ORDER BY date".format(current_user.username)
     display = db.session.execute(display_query)
     display = list(display)
     table = CareTakerAvailability(display)

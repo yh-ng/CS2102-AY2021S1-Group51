@@ -104,14 +104,15 @@ CREATE TABLE CaretakerAvailability(
     date DATE,
     pet_count INTEGER DEFAULT 0,
     leave BOOLEAN DEFAULT False,
-    caretaker VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
+    username VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
     available BOOLEAN NOT NULL DEFAULT True,
-    PRIMARY KEY(caretaker, date)
+    PRIMARY KEY(username, date)
 );
 
--- is bid_date)time actually necessary? dosent seem liek so
+-- is bid_date)time actually necessary? dosent seem liek so (not necessary)
+--if you want we can rename owner with POusername also like what i've done with caretaker so both are same format)
 CREATE TABLE Bids (
-    caretaker VARCHAR,
+    CTusername VARCHAR,
     owner VARCHAR,
     pet_name VARCHAR,
     FOREIGN KEY(owner, pet_name) REFERENCES OwnedPets(owner, pet_name),
@@ -123,17 +124,17 @@ CREATE TABLE Bids (
     completed BOOLEAN DEFAULT FALSE,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    FOREIGN KEY (caretaker, start_date) REFERENCES CareTakerAvailability(caretaker, date),
-    FOREIGN KEY (caretaker, end_date) REFERENCES CaretakerAvailability(caretaker, date)
+    FOREIGN KEY (CTusername, start_date) REFERENCES CareTakerAvailability(username, date),
+    FOREIGN KEY (CTusername, end_date) REFERENCES CaretakerAvailability(username, date)
     -- no need start date and end date like what tutor said, so maybe just update the CaretakerAvailability table whenever a bid is made.
     -- other attributes that might need: price (of bid),
 );
 
 CREATE TABLE PartTimePriceList (
   pettype VARCHAR REFERENCES Category(pettype),
-  caretaker VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
+  username VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
   price NUMERIC,
-  PRIMARY KEY (pettype, caretaker, price)
+  PRIMARY KEY (pettype, username, price)
 );
 
 CREATE TABLE DefaultPriceList (
@@ -153,11 +154,11 @@ INSERT INTO DefaultPriceList VALUES ('Bird', 80);
 
 
 CREATE TABLE FullTimePriceList(
-  caretaker VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
+  username VARCHAR REFERENCES CareTakers(username) ON DELETE CASCADE,
   price NUMERIC,
   pettype VARCHAR,
   FOREIGN KEY (pettype, price) REFERENCES DefaultPriceList(pettype, price),
-  PRIMARY KEY (pettype, caretaker, price)
+  PRIMARY KEY (pettype, username, price)
 );
 
 CREATE TABLE dummy(
@@ -168,11 +169,11 @@ CREATE TABLE dummy(
 CREATE TABLE CareTakerSalary (
   year INTEGER,
   month INTEGER,
-  caretaker VARCHAR REFERENCES CareTakers(username),
+  username VARCHAR REFERENCES CareTakers(username),
   petdays INTEGER NOT NULL DEFAULT 0,
   earnings NUMERIC NOT NULL DEFAULT 0,
   final_salary NUMERIC NOT NULL DEFAULT 0,
-  PRIMARY KEY (year, month, caretaker)
+  PRIMARY KEY (year, month, username)
 );
 
 
