@@ -471,13 +471,26 @@ def search_caretaker():
         #able to filter by employment, category, rating, transport and payment now
         #not sure how to implement filtering for date into current query yet, need more time
         if employment == "1": #part time
-            searchquery = "SELECT DISTINCT username, gender, rating FROM users NATURAL JOIN PartTimePriceList NATURAL JOIN CareTakers NATURAL JOIN PreferredTransport NATURAL JOIN PreferredModeOfPayment NATURAL JOIN CareTakerAvailability WHERE pettype = '{}' AND rating = '{}' AND transport = '{}' AND modeofpayment = '{}'".format(category, rating, transport, payment)
+            searchquery = "SELECT DISTINCT username, gender, rating \
+                            FROM users NATURAL JOIN PartTimePriceList \
+                            NATURAL JOIN CareTakers \
+                            NATURAL JOIN PreferredTransport \
+                            NATURAL JOIN PreferredModeOfPayment \
+                            NATURAL JOIN CareTakerAvailability \
+                            WHERE pettype = '{}' AND rating = '{}' AND transport = '{}' AND modeofpayment = '{}'".format(category, rating, transport, payment)
             filtered = db.session.execute(searchquery)
             filtered = list(filtered)
             table = FilteredCaretakers(filtered)
             table.border = True
         elif employment == "2":#full time
-            searchquery = "SELECT DISTINCT username, gender, rating FROM users NATURAL JOIN FullTimePriceList NATURAL JOIN CareTakers NATURAL JOIN PreferredTransport NATURAL JOIN PreferredModeOfPayment NATURAL JOIN CareTakerAvailability WHERE pettype = '{}' AND rating = '{}' AND transport = '{}' AND modeofpayment = '{}'".format(category, rating, transport, payment)
+            searchquery = "SELECT DISTINCT username, gender, rating \
+                            FROM users \
+                            NATURAL JOIN FullTimePriceList \
+                            NATURAL JOIN CareTakers \
+                            NATURAL JOIN PreferredTransport \
+                            NATURAL JOIN PreferredModeOfPayment \
+                            NATURAL JOIN CareTakerAvailability \
+                            WHERE pettype = '{}' AND rating = '{}' AND transport = '{}' AND modeofpayment = '{}'".format(category, rating, transport, payment)
             filtered = db.session.execute(searchquery)
             filtered = list(filtered)
             table = FilteredCaretakers(filtered)
