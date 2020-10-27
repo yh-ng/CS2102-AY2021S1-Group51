@@ -82,6 +82,8 @@ section 3 - contains links that only full time care takers can access
   - BASICALLY ENSURING HE IS NOT ALLOWED TO TAKE A LEAVE IF HE WANTS TO TAKE A LEAVE THAT VIOLATES THE 2X150 days
   - COULD BE A TRIGGER NOT ALLOWING HIM TO TAKE LEAVE AND NOT UPDATING AVAILABILITY Table
 
+16. Create a function to auto add 1 to all dates with the caretake rname on the deates when a bid is made in availability table
+
 TRIGGERS THAT CAN BE USED *JUST MAKE SURE GOT AT LEAST 3 COMPLEX ONES
 
 1. Create a trigger to auto update the rating of a caretaker at the caretaker table after the user has
