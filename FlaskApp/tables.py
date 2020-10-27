@@ -30,4 +30,11 @@ class FilteredCaretakers(Table):
     username = Col('Caretaker Name')
     gender = Col('Gender')
     rating = Col('Rating')
-    
+    select = LinkCol('Select', 'view.bid', url_kwargs=dict(username='username'))
+
+class SelectedCaretaker(Table):
+    classes = ['table', 'table-bordered', 'table-striped']
+    username = Col('Caretaker Name')
+    email = Col('Email')
+    area = Col('Area')
+    gender = Col('Gender')
