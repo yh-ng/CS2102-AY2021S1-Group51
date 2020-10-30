@@ -534,7 +534,14 @@ def search_caretaker():
              table = FilteredCaretakers(ls)
              table.border = true
         """
-        return render_template("filtered-available-caretakers.html", table=table)
+        return render_template("filtered-available-caretakers.html", table=table,
+        employment = employment,
+        category = category,
+        rating =rating,
+        transport = transport,
+        payment = payment,
+        startDate = startDate,
+        endDate = endDate)
     return render_template('search-caretaker.html', form=form)
 
 
@@ -594,6 +601,36 @@ def caretaker_update_availability():
 """
 Set a route for the pet owners to bid for a care taker (works hand in hand with searchCaretaker route at line 429)
 """
+@view.route("/petowner-bids", methods=["POST", "GET"])
+@login_required
+def petowner_bids():
+    caretaker = request.args.get('username')
+    ownedpetsquery = "SELECT * FROM ownedpets WHERE owner = '{}'".format(current_user.username)
+    ownedpets = db.session.execute(ownedpetsquery)
+    ownedpets = list(ownedpets)
+    ownedpets = SelectPet(ownedpets)
+
+    isParttime = "SELECT * FROM PartTime WHERE username = '{}'".format(caretaker)
+    exists = db.session.execute(isParttime).fetchone()
+    if exists is None:
+        pricelistquery = "SELECT pettype, price FROM DefaultPriceList"
+        prices=db.session.execute(pricelistquery)
+        prices=list(prices)
+        prices = PriceList(prices)
+    else:
+        pricelistquery = "SELECT pettype, price FROM parttimepricelist WHERE username='{}'".format(caretaker)
+        prices=db.session.execute(pricelistquery)
+        prices=list(prices)
+        prices = PriceList(prices)
+
+    return render_template("bid.html", username=caretaker, pet_table=ownedpets, prices=prices)
+
+@view.route("/petowner-bids", methods=["POST", "GET"])
+@login_required
+def petowner_bid_selected():
+
+
+    return render_template("bid.html")
 
 
 """
