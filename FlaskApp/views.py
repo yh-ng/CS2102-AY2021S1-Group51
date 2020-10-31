@@ -82,7 +82,14 @@ def caretakers():
 # Page to bid for a caretaker
 @view.route("/bid")
 def bid():
-    return render_template('bid.html')
+    username = request.args.get('username')
+    query = "SELECT DISTINCT username, email, area, gender \
+             FROM Users WHERE username = '{}'".format(username)
+    selected = db.session.execute(query)
+    selected = list(selected)
+    table = SelectedCaretaker(selected)
+    table.border = True
+    return render_template('bid.html', table=table)
 
 
 # Will be inserted into the caretaker table
@@ -134,7 +141,7 @@ def registration():
 
                 # If he sign up as a caretaker, he will automatically be available for everyday.
                 # Will need to update this table himself at another page if he dosent want to be available
-                # in andy day.
+                # in any day.
                 for i in range(10, 13):
                     db.session.execute("INSERT INTO CareTakerSalary(year, month, username) VALUES ('{}', '{}', '{}')".format(2020, i, username))
 
@@ -467,30 +474,42 @@ def search_caretaker():
         startDate = form.startDate.data
         endDate = form.endDate.data
 
-        #the search query is very long and I'm not sure how to wrap it around in atom
-        #able to filter by employment, category, rating, transport and payment now
-        #not sure how to implement filtering for date into current query yet, need more time
         if employment == "1": #part time
             searchquery = "SELECT DISTINCT username, gender, rating \
-                            FROM users NATURAL JOIN PartTimePriceList \
+                            FROM users U \
+                            NATURAL JOIN PartTimePriceList \
                             NATURAL JOIN CareTakers \
                             NATURAL JOIN PreferredTransport \
                             NATURAL JOIN PreferredModeOfPayment \
                             NATURAL JOIN CareTakerAvailability \
-                            WHERE pettype = '{}' AND rating = '{}' AND transport = '{}' AND modeofpayment = '{}'".format(category, rating, transport, payment)
+                            WHERE pettype = '{}' AND rating = '{}' \
+                            AND transport = '{}' AND modeofpayment = '{}' \
+                            AND True = ALL(SELECT available \
+                            FROM CaretakerAvailability C \
+                            WHERE C.username = U.username \
+                            AND C.date >= '{}' \
+                            AND C.date <= '{}') \
+                            ".format(category, rating, transport, payment, startDate, endDate)
             filtered = db.session.execute(searchquery)
             filtered = list(filtered)
             table = FilteredCaretakers(filtered)
             table.border = True
         elif employment == "2":#full time
             searchquery = "SELECT DISTINCT username, gender, rating \
-                            FROM users \
+                            FROM users U\
                             NATURAL JOIN FullTimePriceList \
                             NATURAL JOIN CareTakers \
                             NATURAL JOIN PreferredTransport \
                             NATURAL JOIN PreferredModeOfPayment \
                             NATURAL JOIN CareTakerAvailability \
-                            WHERE pettype = '{}' AND rating = '{}' AND transport = '{}' AND modeofpayment = '{}'".format(category, rating, transport, payment)
+                            WHERE pettype = '{}' AND rating = '{}' \
+                            AND transport = '{}' AND modeofpayment = '{}' \
+                            AND True = ALL(SELECT available \
+                            FROM CaretakerAvailability C \
+                            WHERE C.username = U.username \
+                            AND C.date >= '{}' \
+                            AND C.date <= '{}') \
+                            ".format(category, rating, transport, payment, startDate, endDate)
             filtered = db.session.execute(searchquery)
             filtered = list(filtered)
             table = FilteredCaretakers(filtered)
@@ -515,7 +534,14 @@ def search_caretaker():
              table = FilteredCaretakers(ls)
              table.border = true
         """
-        return render_template("filtered-available-caretakers.html", table=table)
+        return render_template("filtered-available-caretakers.html", table=table,
+        employment = employment,
+        category = category,
+        rating =rating,
+        transport = transport,
+        payment = payment,
+        startDate = startDate,
+        endDate = endDate)
     return render_template('search-caretaker.html', form=form)
 
 
@@ -575,6 +601,36 @@ def caretaker_update_availability():
 """
 Set a route for the pet owners to bid for a care taker (works hand in hand with searchCaretaker route at line 429)
 """
+@view.route("/petowner-bids", methods=["POST", "GET"])
+@login_required
+def petowner_bids():
+    caretaker = request.args.get('username')
+    ownedpetsquery = "SELECT * FROM ownedpets WHERE owner = '{}'".format(current_user.username)
+    ownedpets = db.session.execute(ownedpetsquery)
+    ownedpets = list(ownedpets)
+    ownedpets = SelectPet(ownedpets)
+
+    isParttime = "SELECT * FROM PartTime WHERE username = '{}'".format(caretaker)
+    exists = db.session.execute(isParttime).fetchone()
+    if exists is None:
+        pricelistquery = "SELECT pettype, price FROM DefaultPriceList"
+        prices=db.session.execute(pricelistquery)
+        prices=list(prices)
+        prices = PriceList(prices)
+    else:
+        pricelistquery = "SELECT pettype, price FROM parttimepricelist WHERE username='{}'".format(caretaker)
+        prices=db.session.execute(pricelistquery)
+        prices=list(prices)
+        prices = PriceList(prices)
+
+    return render_template("bid.html", username=caretaker, pet_table=ownedpets, prices=prices)
+
+@view.route("/petowner-bids", methods=["POST", "GET"])
+@login_required
+def petowner_bid_selected():
+
+
+    return render_template("bid.html")
 
 
 """

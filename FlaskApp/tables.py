@@ -30,4 +30,22 @@ class FilteredCaretakers(Table):
     username = Col('Caretaker Name')
     gender = Col('Gender')
     rating = Col('Rating')
-    
+    select = LinkCol('Select', 'view.petowner_bids', url_kwargs=dict(username='username'))
+
+class SelectedCaretaker(Table):
+    classes = ['table', 'table-bordered', 'table-striped']
+    username = Col('Caretaker Name')
+    email = Col('Email')
+    area = Col('Area')
+    gender = Col('Gender')
+
+class PriceList(Table):
+    classes = ['table', 'table-bordered', 'table-striped']
+    pettype = Col('Type')
+    price = Col('Price')
+
+class SelectPet(Table):
+    classes = ['table', 'table-bordered', 'table-striped', "sortable"]
+    pet_name = Col('Pet Name')
+    category = Col('Category')
+    bid = LinkCol('bid', 'view.petowner_bid_selected', url_kwargs=dict(pet_name='pet_name'))

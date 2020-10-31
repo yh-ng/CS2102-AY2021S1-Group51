@@ -1,5 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1>Bid for your caretaker here!</h1>
-    <p>This page will be the one to allow users to bid for a caretaker</p>
+    <h1>Bid for your Caretaker here!</h1>
+    <br>
+    <p>You have selected {{username}} as your Caretaker.</p>
+    <p>These are the recommended prices for {{username}}: </p>
+{{ prices }}
+<p>These are your pets: </p>
+<small>please select one</small>
+{{ pet_table }}
+
 {% endblock content %}
